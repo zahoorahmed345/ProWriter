@@ -153,12 +153,12 @@ public class MainActivity extends Activity {
             String output;
             try {
                 output = Rewriter.rewrite(p, key, text, target, soFar -> runOnUiThread(() -> {
-                    if (!isFinishing() && !isDestroyed()) tryResult.setText(soFar);
+                    if (!isFinishing() && !isDestroyed()) tryResult.setText(Rewriter.forDisplay(soFar));
                 }));
             } catch (Rewriter.RewriteException e) {
                 output = "⚠ " + e.getMessage();
             }
-            final String shown = output;
+            final String shown = output.startsWith("⚠") ? output : Rewriter.forDisplay(output);
             runOnUiThread(() -> {
                 if (isFinishing() || isDestroyed()) return;
                 tryBtn.setEnabled(true);

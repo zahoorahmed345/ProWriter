@@ -33,6 +33,7 @@ public class ProcessTextActivity extends Activity {
     private ProgressBar progress;
     private TextView status;
     private EditText result;
+    private TextView pinyin;
     private Button replaceBtn;
     private Button copyBtn;
     private Button retryBtn;
@@ -58,6 +59,7 @@ public class ProcessTextActivity extends Activity {
         progress = findViewById(R.id.progress);
         status = findViewById(R.id.status);
         result = findViewById(R.id.result);
+        pinyin = findViewById(R.id.pinyin);
         replaceBtn = findViewById(R.id.btn_replace);
         copyBtn = findViewById(R.id.btn_copy);
         retryBtn = findViewById(R.id.btn_retry);
@@ -77,7 +79,8 @@ public class ProcessTextActivity extends Activity {
 
     /** Which menu item was tapped: each one is a separate entry pointing to this screen. */
     private Rewriter.Target targetFromMenuItem() {
-        ComponentName cn = getComponentName();
+        ComponentName cn = getIntent().getComponent();
+        if (cn == null) cn = getComponentName();
         String name = cn == null ? "" : cn.getClassName();
         if (name.endsWith("English")) return Rewriter.Target.ENGLISH;
         if (name.endsWith("Chinese")) return Rewriter.Target.CHINESE;
@@ -123,6 +126,7 @@ public class ProcessTextActivity extends Activity {
         status.setVisibility(View.VISIBLE);
         status.setText(R.string.working);
         result.setVisibility(View.GONE);
+        pinyin.setVisibility(View.GONE);
         replaceBtn.setVisibility(View.GONE);
         copyBtn.setVisibility(View.GONE);
         retryBtn.setVisibility(View.GONE);
@@ -131,17 +135,27 @@ public class ProcessTextActivity extends Activity {
     /** Shows the answer while it is still being written. */
     private void showPartial(String soFar) {
         if (gone() || soFar.isEmpty()) return;
+        String[] parts = Rewriter.split(soFar);
+        if (parts[0].isEmpty()) return;
         status.setText(R.string.writing);
         result.setVisibility(View.VISIBLE);
-        result.setText(soFar);
+        result.setText(parts[0]);
+        showPinyin(parts[1]);
     }
 
-    private void showResult(String text) {
+    private void showPinyin(String text) {
+        pinyin.setVisibility(text == null ? View.GONE : View.VISIBLE);
+        pinyin.setText(text == null ? "" : text);
+    }
+
+    private void showResult(String raw) {
         if (gone()) return;
+        String[] parts = Rewriter.split(raw);
         progress.setVisibility(View.GONE);
         status.setVisibility(View.GONE);
         result.setVisibility(View.VISIBLE);
-        result.setText(text);
+        result.setText(parts[0]);
+        showPinyin(parts[1]);
         copyBtn.setVisibility(View.VISIBLE);
         // Some apps (e.g. a web page) only let you read text, so "Replace" is hidden there.
         replaceBtn.setVisibility(readOnly ? View.GONE : View.VISIBLE);
@@ -154,6 +168,7 @@ public class ProcessTextActivity extends Activity {
         status.setVisibility(View.VISIBLE);
         status.setText(message);
         result.setVisibility(View.GONE);
+        pinyin.setVisibility(View.GONE);
         replaceBtn.setVisibility(View.GONE);
         copyBtn.setVisibility(View.GONE);
         retryBtn.setVisibility(View.VISIBLE);

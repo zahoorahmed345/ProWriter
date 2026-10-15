@@ -33,6 +33,7 @@ public class ClipboardActivity extends Activity {
     private ProgressBar progress;
     private TextView status;
     private EditText result;
+    private TextView pinyin;
     private Button doneBtn;
     private Button copyBtn;
     private Button retryBtn;
@@ -47,6 +48,7 @@ public class ClipboardActivity extends Activity {
         progress = findViewById(R.id.progress);
         status = findViewById(R.id.status);
         result = findViewById(R.id.result);
+        pinyin = findViewById(R.id.pinyin);
         doneBtn = findViewById(R.id.btn_cancel);
         copyBtn = findViewById(R.id.btn_copy);
         retryBtn = findViewById(R.id.btn_retry);
@@ -136,6 +138,7 @@ public class ClipboardActivity extends Activity {
         progress.setVisibility(View.VISIBLE);
         status.setText(R.string.working);
         result.setVisibility(View.GONE);
+        pinyin.setVisibility(View.GONE);
         copyBtn.setVisibility(View.GONE);
         retryBtn.setVisibility(View.GONE);
         doneBtn.setText(R.string.cancel);
@@ -144,18 +147,28 @@ public class ClipboardActivity extends Activity {
     /** Shows the answer while it is still being written. */
     private void showPartial(String soFar) {
         if (gone() || soFar.isEmpty()) return;
+        String[] parts = Rewriter.split(soFar);
+        if (parts[0].isEmpty()) return;
         status.setText(R.string.writing);
         result.setVisibility(View.VISIBLE);
-        result.setText(soFar);
+        result.setText(parts[0]);
+        showPinyin(parts[1]);
     }
 
-    private void showResult(String text) {
+    private void showPinyin(String text) {
+        pinyin.setVisibility(text == null ? View.GONE : View.VISIBLE);
+        pinyin.setText(text == null ? "" : text);
+    }
+
+    private void showResult(String raw) {
         if (gone()) return;
-        copyToClipboard(text); // ready to paste straight away
+        String[] parts = Rewriter.split(raw);
+        copyToClipboard(parts[0]); // only the message, never the pinyin; ready to paste
         progress.setVisibility(View.GONE);
         status.setText(R.string.clip_copied);
         result.setVisibility(View.VISIBLE);
-        result.setText(text);
+        result.setText(parts[0]);
+        showPinyin(parts[1]);
         copyBtn.setText(R.string.copy_edited);
         copyBtn.setVisibility(View.VISIBLE);
         retryBtn.setVisibility(View.GONE);
@@ -167,6 +180,7 @@ public class ClipboardActivity extends Activity {
         progress.setVisibility(View.GONE);
         status.setText(message);
         result.setVisibility(View.GONE);
+        pinyin.setVisibility(View.GONE);
         copyBtn.setVisibility(View.GONE);
         retryBtn.setVisibility(canRetry ? View.VISIBLE : View.GONE);
         doneBtn.setText(R.string.close);
