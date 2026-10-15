@@ -63,12 +63,13 @@ public class ProcessTextActivity extends Activity {
 
     private void start() {
         showLoading();
-        final String key = Prefs.getApiKey(this);
+        final Rewriter.Provider provider = Prefs.getProvider(this);
+        final String key = Prefs.getApiKey(this, provider);
         final boolean english = Prefs.forceEnglish(this);
 
         new Thread(() -> {
             try {
-                String rewritten = Rewriter.rewrite(key, original, english);
+                String rewritten = Rewriter.rewrite(provider, key, original, english);
                 runOnUiThread(() -> showResult(rewritten));
             } catch (Rewriter.RewriteException e) {
                 runOnUiThread(() -> showError(e.getMessage(), e.missingKey));

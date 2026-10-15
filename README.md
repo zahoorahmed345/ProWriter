@@ -11,13 +11,17 @@ without adding things you didn't say. You can edit the result before replacing.
 
 ---
 
-## 1. Get a Claude API key
+## 1. Get an API key
 
-1. Go to <https://console.anthropic.com> and sign up.
-2. Add some credit under **Billing** (each message costs a very small amount).
-3. Open **API keys** → **Create key**, and copy it (it starts with `sk-ant-`).
+Pick one AI provider in the app and get a key for it:
 
-Keep this key private. It is stored only on your phone, inside the app.
+- **Google Gemini (free):** go to <https://aistudio.google.com/apikey>, sign in with Google and
+  tap **Create API key**. No card needed. On the free tier Google may use what you send to
+  improve its products, and there is a daily limit.
+- **Claude (paid, very cheap):** <https://console.anthropic.com/settings/keys>. Add credit under Billing.
+- **DeepSeek (paid, very cheap):** <https://platform.deepseek.com/api_keys>. Add credit first.
+
+Keys are stored only on your phone, inside the app. Keep them private.
 
 ## 2. Build and install the app
 
@@ -49,7 +53,7 @@ It appears in `app/build/outputs/apk/debug/app-debug.apk`; copy it to your phone
 ## 3. Set it up on the phone
 
 1. Open **Pro Writer**.
-2. Paste your API key and tap **Save**.
+2. Choose your AI provider, paste its API key and tap **Save**.
 3. (Optional) Tick **Always write the result in English** if you sometimes type in another
    language and want English output.
 4. Use the **Try it here** box to test it.
@@ -68,7 +72,7 @@ It appears in `app/build/outputs/apk/debug/app-debug.apk`; copy it to your phone
 
 - Plain Java, no third-party libraries. Main files are in `app/src/main/java/com/prowriter/app/`:
   - `ProcessTextActivity.java` handles Android's `ACTION_PROCESS_TEXT` (the selection menu).
-  - `Rewriter.java` calls the Claude Messages API. The model and the writing rules (the system
-    prompt) are at the top of this file; edit them to change the style.
+  - `Rewriter.java` calls Gemini, Claude or DeepSeek. Model names are in the `Provider` list at
+    the top; the writing rules are in `systemPrompt()`.
   - `MainActivity.java` is the settings and test screen.
 - To rename the menu button, change `process_label` in `res/values/strings.xml`.

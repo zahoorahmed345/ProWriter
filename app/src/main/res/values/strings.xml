@@ -5,11 +5,12 @@
     <string name="process_label">Make Professional</string>
 
     <string name="how_title">How to use</string>
-    <string name="how_steps">1. Paste your API key below and tap Save.\n2. In any app (WhatsApp, Gmail, Messages…), type your message.\n3. Long-press the text and tap Select all.\n4. Tap \"Make Professional\" in the menu. If you don\'t see it, tap ⋮ (more) first.\n5. Tap Replace, and send.</string>
+    <string name="provider_label">AI provider</string>
+    <string name="how_steps">1. Choose an AI provider, paste its API key below and tap Save.\n2. In any app (WhatsApp, Gmail, Messages…), type your message.\n3. Long-press the text and tap Select all.\n4. Tap \"Make Professional\" in the menu. If you don\'t see it, tap ⋮ (more) first.\n5. Tap Replace, and send.</string>
 
-    <string name="key_label">Claude API key</string>
-    <string name="key_hint">sk-ant-…</string>
-    <string name="key_link"><a href="https://console.anthropic.com/settings/keys">Get a key at console.anthropic.com</a></string>
+    <string name="key_label">API key</string>
+    <string name="key_hint">Paste your key</string>
+    <string name="key_link"></string>
     <string name="force_english">Always write the result in English</string>
     <string name="save">Save</string>
     <string name="key_saved">Key saved</string>

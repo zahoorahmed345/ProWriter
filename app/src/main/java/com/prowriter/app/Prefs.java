@@ -6,8 +6,9 @@ import android.content.SharedPreferences;
 /** Stores the user's settings privately on the phone. */
 final class Prefs {
     private static final String FILE = "settings";
-    private static final String KEY_API = "api_key";
+    private static final String KEY_PROVIDER = "provider";
     private static final String KEY_ENGLISH = "force_english";
+    private static final String KEY_OLD_API = "api_key"; // version 1.0 stored the Claude key here
 
     private Prefs() {}
 
@@ -15,12 +16,29 @@ final class Prefs {
         return c.getSharedPreferences(FILE, Context.MODE_PRIVATE);
     }
 
-    static String getApiKey(Context c) {
-        return sp(c).getString(KEY_API, "");
+    static Rewriter.Provider getProvider(Context c) {
+        String name = sp(c).getString(KEY_PROVIDER, Rewriter.Provider.GEMINI.name());
+        try {
+            return Rewriter.Provider.valueOf(name);
+        } catch (IllegalArgumentException e) {
+            return Rewriter.Provider.GEMINI;
+        }
     }
 
-    static void setApiKey(Context c, String key) {
-        sp(c).edit().putString(KEY_API, key == null ? "" : key.trim()).apply();
+    static void setProvider(Context c, Rewriter.Provider p) {
+        sp(c).edit().putString(KEY_PROVIDER, p.name()).apply();
+    }
+
+    static String getApiKey(Context c, Rewriter.Provider p) {
+        String key = sp(c).getString("api_key_" + p.name(), null);
+        if (key == null && p == Rewriter.Provider.CLAUDE) {
+            key = sp(c).getString(KEY_OLD_API, "");
+        }
+        return key == null ? "" : key;
+    }
+
+    static void setApiKey(Context c, Rewriter.Provider p, String key) {
+        sp(c).edit().putString("api_key_" + p.name(), key == null ? "" : key.trim()).apply();
     }
 
     static boolean forceEnglish(Context c) {
