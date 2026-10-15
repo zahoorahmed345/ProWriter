@@ -41,14 +41,6 @@ final class Prefs {
         sp(c).edit().putString("api_key_" + p.name(), key == null ? "" : key.trim()).apply();
     }
 
-    static boolean autoSuggest(Context c) {
-        return sp(c).getBoolean("auto_suggest", true);
-    }
-
-    static void setAutoSuggest(Context c, boolean value) {
-        sp(c).edit().putBoolean("auto_suggest", value).apply();
-    }
-
     static boolean forceEnglish(Context c) {
         return sp(c).getBoolean(KEY_ENGLISH, false);
     }

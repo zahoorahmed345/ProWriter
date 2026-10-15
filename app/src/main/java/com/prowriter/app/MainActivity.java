@@ -2,9 +2,11 @@ package com.prowriter.app;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.app.StatusBarManager;
 import android.content.Intent;
+import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
@@ -81,46 +83,38 @@ public class MainActivity extends Activity {
 
         tryBtn.setOnClickListener(v -> tryIt());
 
-        // Floating button (accessibility service)
-        findViewById(R.id.btn_float).setOnClickListener(v -> {
-            try {
-                startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
-            } catch (Exception e) {
-                startActivity(new Intent(Settings.ACTION_SETTINGS));
+        findViewById(R.id.btn_tile).setOnClickListener(v -> addTile());
+    }
+
+    /** Asks Android to add the Pro Writer tile (Android 13+); older phones get instructions. */
+    private void addTile() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            StatusBarManager sbm = getSystemService(StatusBarManager.class);
+            if (sbm != null) {
+                try {
+                    sbm.requestAddTileService(
+                            new ComponentName(this, ProTileService.class),
+                            getString(R.string.tile_label),
+                            Icon.createWithResource(this, R.drawable.ic_tile),
+                            getMainExecutor(),
+                            result -> {
+                                int msg;
+                                if (result == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED) {
+                                    msg = R.string.tile_added;
+                                } else if (result == StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED) {
+                                    msg = R.string.tile_already;
+                                } else {
+                                    msg = R.string.tile_manual;
+                                }
+                                Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+                            });
+                    return;
+                } catch (Exception ignored) {
+                    // Some phones don't support this request; fall through to instructions.
+                }
             }
-        });
-        CheckBox auto = findViewById(R.id.auto_suggest);
-        auto.setChecked(Prefs.autoSuggest(this));
-        auto.setOnCheckedChangeListener((b, checked) -> Prefs.setAutoSuggest(this, checked));
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        boolean on = floatingButtonEnabled();
-        ((TextView) findViewById(R.id.float_status)).setText(on ? R.string.float_on : R.string.float_off);
-        ((Button) findViewById(R.id.btn_float)).setText(on ? R.string.float_settings : R.string.float_turn_on);
-        findViewById(R.id.float_help).setVisibility(on ? View.GONE : View.VISIBLE);
-    }
-
-    private boolean floatingButtonEnabled() {
-        String enabled = Settings.Secure.getString(getContentResolver(),
-                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-        if (enabled == null) return false;
-        ComponentName me = new ComponentName(this, ProAssistService.class);
-        for (String s : enabled.split(":")) {
-            if (me.equals(ComponentName.unflattenFromString(s))) return true;
         }
-        return false;
-    }
-
-    /** Updates the key box, its label and the "get a key" link for the selected provider. */
-    private void showProvider() {
-        keyLabel.setText(provider.keyLabel);
-        keyInput.setHint(provider.keyHint);
-        keyInput.setText(Prefs.getApiKey(this, provider));
-        keyLink.setText(Html.fromHtml("<a href=\"" + provider.keyUrl + "\">"
-                + provider.keyLinkText + "</a>", Html.FROM_HTML_MODE_LEGACY));
+        Toast.makeText(this, R.string.tile_manual, Toast.LENGTH_LONG).show();
     }
 
     private void tryIt() {
