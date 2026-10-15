@@ -24,7 +24,14 @@ jobs:
       - name: Build APK
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          set -o pipefail
+          if ! ./gradlew assembleDebug --no-daemon 2>&1 | tee build.log; then
+            # Show the errors as annotations on the run page
+            grep -E "error:|e: |What went wrong|ERROR:" -A2 build.log | head -30 | while IFS= read -r line; do
+              echo "::error::$line"
+            done
+            exit 1
+          fi
           cp app/build/outputs/apk/debug/app-debug.apk ProWriter.apk
 
       # Keeps a copy on the run page as well

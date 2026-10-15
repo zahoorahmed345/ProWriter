@@ -117,6 +117,15 @@ public class MainActivity extends Activity {
         Toast.makeText(this, R.string.tile_manual, Toast.LENGTH_LONG).show();
     }
 
+    /** Updates the key box, its label and the "get a key" link for the selected provider. */
+    private void showProvider() {
+        keyLabel.setText(provider.keyLabel);
+        keyInput.setHint(provider.keyHint);
+        keyInput.setText(Prefs.getApiKey(this, provider));
+        keyLink.setText(Html.fromHtml("<a href=\"" + provider.keyUrl + "\">"
+                + provider.keyLinkText + "</a>", Html.FROM_HTML_MODE_LEGACY));
+    }
+
     private void tryIt() {
         String text = tryInput.getText().toString();
         if (text.trim().isEmpty()) {
