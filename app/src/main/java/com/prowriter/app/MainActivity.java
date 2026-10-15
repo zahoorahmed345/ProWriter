@@ -126,6 +126,12 @@ public class MainActivity extends Activity {
                 + provider.keyLinkText + "</a>", Html.FROM_HTML_MODE_LEGACY));
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Rewriter.warmUp(provider);
+    }
+
     private void tryIt() {
         String text = tryInput.getText().toString();
         if (text.trim().isEmpty()) {
@@ -147,7 +153,9 @@ public class MainActivity extends Activity {
         new Thread(() -> {
             String output;
             try {
-                output = Rewriter.rewrite(p, key, text, english);
+                output = Rewriter.rewrite(p, key, text, english, soFar -> runOnUiThread(() -> {
+                    if (!isFinishing() && !isDestroyed()) tryResult.setText(soFar);
+                }));
             } catch (Rewriter.RewriteException e) {
                 output = "⚠ " + e.getMessage();
             }

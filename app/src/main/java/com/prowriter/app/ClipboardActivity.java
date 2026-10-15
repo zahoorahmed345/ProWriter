@@ -56,6 +56,9 @@ public class ClipboardActivity extends Activity {
 
         status.setText(R.string.clip_reading);
         result.setVisibility(View.GONE);
+
+        // Start connecting right away, while the clipboard is being read.
+        Rewriter.warmUp(Prefs.getProvider(this));
     }
 
     /** Android only lets an app read the clipboard once its window is in front, so start here. */
@@ -89,7 +92,8 @@ public class ClipboardActivity extends Activity {
 
         new Thread(() -> {
             try {
-                String rewritten = Rewriter.rewrite(provider, key, original, english);
+                String rewritten = Rewriter.rewrite(provider, key, original, english,
+                        soFar -> runOnUiThread(() -> showPartial(soFar)));
                 runOnUiThread(() -> showResult(rewritten));
             } catch (Rewriter.RewriteException e) {
                 runOnUiThread(() -> showError(e.getMessage(), true));
@@ -108,6 +112,14 @@ public class ClipboardActivity extends Activity {
         copyBtn.setVisibility(View.GONE);
         retryBtn.setVisibility(View.GONE);
         doneBtn.setText(R.string.cancel);
+    }
+
+    /** Shows the answer while it is still being written. */
+    private void showPartial(String soFar) {
+        if (gone() || soFar.isEmpty()) return;
+        status.setText(R.string.writing);
+        result.setVisibility(View.VISIBLE);
+        result.setText(soFar);
     }
 
     private void showResult(String text) {

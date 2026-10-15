@@ -3,8 +3,10 @@ package com.prowriter.app;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
@@ -63,10 +65,20 @@ final class Rewriter {
         }
     }
 
+    /** Receives the text written so far, so the screen can show it word by word. */
+    interface Partial {
+        void onText(String soFar);
+    }
+
     private Rewriter() {}
 
     static String rewrite(Provider provider, String apiKey, String text, boolean forceEnglish)
             throws RewriteException {
+        return rewrite(provider, apiKey, text, forceEnglish, null);
+    }
+
+    static String rewrite(Provider provider, String apiKey, String text, boolean forceEnglish,
+                          Partial partial) throws RewriteException {
         if (apiKey == null || apiKey.trim().isEmpty()) {
             throw new RewriteException("No " + provider.keyLabel + " yet. Open the Pro Writer app, "
                     + "paste your key and tap Save.", true);
@@ -79,7 +91,7 @@ final class Rewriter {
             String result;
             switch (provider) {
                 case GEMINI:
-                    result = callGemini(provider, key, system, userText);
+                    result = callGemini(provider, key, system, userText, partial);
                     break;
                 case DEEPSEEK:
                     result = callDeepSeek(provider, key, system, userText);
@@ -107,8 +119,8 @@ final class Rewriter {
 
     // ---------------------------------------------------------------- Google Gemini
 
-    private static String callGemini(Provider p, String key, String system, String userText)
-            throws Exception {
+    private static String callGemini(Provider p, String key, String system, String userText,
+                                     Partial partial) throws Exception {
         JSONObject body = new JSONObject();
         body.put("systemInstruction", new JSONObject()
                 .put("parts", new JSONArray().put(new JSONObject().put("text", system))));
@@ -119,26 +131,56 @@ final class Rewriter {
 
         Map<String, String> headers = new TreeMap<>();
         headers.put("x-goog-api-key", key);
-        Response r = post("https://generativelanguage.googleapis.com/v1beta/models/"
-                + p.model + ":generateContent", headers, body);
-        if (!r.ok()) throw new RewriteException(describeError(p, r));
 
-        JSONObject json = new JSONObject(r.body);
-        JSONArray candidates = json.optJSONArray("candidates");
-        if (candidates == null || candidates.length() == 0) {
-            throw new RewriteException("Gemini refused to rewrite this message. Try wording it differently.");
-        }
-        JSONObject content = candidates.getJSONObject(0).optJSONObject("content");
-        JSONArray parts = content == null ? null : content.optJSONArray("parts");
-        StringBuilder out = new StringBuilder();
-        if (parts != null) {
-            for (int i = 0; i < parts.length(); i++) {
-                JSONObject part = parts.getJSONObject(i);
-                if (part.optBoolean("thought", false)) continue; // skip thinking notes
-                out.append(part.optString("text", ""));
+        // Streaming: the answer arrives in small pieces, so the first words show up quickly.
+        HttpURLConnection conn = open("https://generativelanguage.googleapis.com/v1beta/models/"
+                + p.model + ":streamGenerateContent?alt=sse", headers, body);
+        try {
+            int code = conn.getResponseCode();
+            if (code < 200 || code >= 300) {
+                throw new RewriteException(describeError(p,
+                        new Response(code, readAll(conn.getErrorStream()))));
             }
+            StringBuilder out = new StringBuilder();
+            boolean gotCandidate = false;
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (!line.startsWith("data:")) continue;
+                    String data = line.substring(5).trim();
+                    if (data.isEmpty()) continue;
+                    JSONObject chunk = new JSONObject(data);
+                    if (chunk.has("error")) {
+                        throw new RewriteException(describeError(p, new Response(500, data)));
+                    }
+                    JSONArray candidates = chunk.optJSONArray("candidates");
+                    if (candidates == null || candidates.length() == 0) continue;
+                    gotCandidate = true;
+                    JSONObject content = candidates.getJSONObject(0).optJSONObject("content");
+                    JSONArray parts = content == null ? null : content.optJSONArray("parts");
+                    if (parts == null) continue;
+                    boolean added = false;
+                    for (int i = 0; i < parts.length(); i++) {
+                        JSONObject part = parts.getJSONObject(i);
+                        if (part.optBoolean("thought", false)) continue; // skip thinking notes
+                        String t = part.optString("text", "");
+                        if (!t.isEmpty()) {
+                            out.append(t);
+                            added = true;
+                        }
+                    }
+                    if (added && partial != null) partial.onText(out.toString().trim());
+                }
+            }
+            if (!gotCandidate) {
+                throw new RewriteException("Gemini refused to rewrite this message. Try wording it differently.");
+            }
+            return out.toString();
+        } catch (Exception e) {
+            conn.disconnect();
+            throw e;
         }
-        return out.toString();
     }
 
     // ---------------------------------------------------------------- Claude
@@ -191,13 +233,20 @@ final class Rewriter {
 
     private static String systemPrompt(boolean forceEnglish) {
         String language = forceEnglish
-                ? "- Write the result in English, even if the message is written in another language "
-                  + "or in another language typed with English letters.\n"
-                : "- Write the result in the same language as the message.\n";
+                ? "- Write the result in natural, professional English, translating the message "
+                  + "if it is in another language.\n"
+                : "- Write the result in the same language AND the same script as the message. "
+                  + "For Roman Urdu or Roman Hindi, keep using English letters (never switch to "
+                  + "Urdu or Hindi script), use clear common spellings (for example kaisi, nahi, "
+                  + "khaane, aaj), and a polite, respectful tone (use aap instead of tum).\n";
 
         return "You rewrite short messages (chats, texts, emails) into a professional version "
                 + "with no mistakes.\n"
                 + "Rules:\n"
+                + "- First work out the language. Many messages are Urdu or Hindi typed with "
+                + "English letters (Roman Urdu), e.g. \"kesi ho\", \"kesa din guzra\", "
+                + "\"aye nii aj khany pe\". Treat these as Urdu/Hindi, not as broken English, "
+                + "and understand the intended meaning.\n"
                 + "- Fix all grammar, spelling, punctuation and capitalization.\n"
                 + "- Make the tone polite, clear and professional, but still natural and human, "
                 + "not stiff or robotic.\n"
@@ -225,21 +274,27 @@ final class Rewriter {
         }
     }
 
-    private static Response post(String url, Map<String, String> headers, JSONObject body)
+    private static HttpURLConnection open(String url, Map<String, String> headers, JSONObject body)
             throws Exception {
         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        conn.setRequestMethod("POST");
+        conn.setConnectTimeout(15_000);
+        conn.setReadTimeout(60_000);
+        conn.setDoOutput(true);
+        conn.setRequestProperty("Content-Type", "application/json");
+        for (Map.Entry<String, String> h : headers.entrySet()) {
+            conn.setRequestProperty(h.getKey(), h.getValue());
+        }
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(body.toString().getBytes(StandardCharsets.UTF_8));
+        }
+        return conn;
+    }
+
+    private static Response post(String url, Map<String, String> headers, JSONObject body)
+            throws Exception {
+        HttpURLConnection conn = open(url, headers, body);
         try {
-            conn.setRequestMethod("POST");
-            conn.setConnectTimeout(15_000);
-            conn.setReadTimeout(60_000);
-            conn.setDoOutput(true);
-            conn.setRequestProperty("Content-Type", "application/json");
-            for (Map.Entry<String, String> h : headers.entrySet()) {
-                conn.setRequestProperty(h.getKey(), h.getValue());
-            }
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(body.toString().getBytes(StandardCharsets.UTF_8));
-            }
             int code = conn.getResponseCode();
             boolean ok = code >= 200 && code < 300;
             // Not calling disconnect(): leaving the connection open lets the next request
@@ -249,6 +304,41 @@ final class Rewriter {
             conn.disconnect();
             throw e;
         }
+    }
+
+    private static volatile long lastWarmUp;
+
+    /**
+     * Opens a connection to the provider in the background (e.g. when you pull down quick
+     * settings), so that when you tap, the slow connection setup is already done.
+     */
+    static void warmUp(Provider p) {
+        long now = System.currentTimeMillis();
+        if (now - lastWarmUp < 20_000) return;
+        lastWarmUp = now;
+        final String url;
+        switch (p) {
+            case GEMINI:
+                url = "https://generativelanguage.googleapis.com/";
+                break;
+            case DEEPSEEK:
+                url = "https://api.deepseek.com/";
+                break;
+            default:
+                url = "https://api.anthropic.com/";
+                break;
+        }
+        new Thread(() -> {
+            try {
+                HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+                conn.setConnectTimeout(10_000);
+                conn.setReadTimeout(10_000);
+                int code = conn.getResponseCode();
+                readAll(code >= 200 && code < 400 ? conn.getInputStream() : conn.getErrorStream());
+            } catch (Exception ignored) {
+                // Only a speed-up; failures don't matter.
+            }
+        }).start();
     }
 
     private static String describeError(Provider p, Response r) {

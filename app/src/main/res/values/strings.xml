@@ -11,7 +11,7 @@
     <string name="key_label">API key</string>
     <string name="key_hint">Paste your key</string>
     <string name="key_link"></string>
-    <string name="force_english">Always write the result in English</string>
+    <string name="force_english">Always write the result in English (translate Roman Urdu and other languages)</string>
     <string name="save">Save</string>
     <string name="key_saved">Key saved</string>
     <string name="key_cleared">Key removed</string>
@@ -34,12 +34,13 @@
     <string name="close">Close</string>
 
     <string name="try_title">Try it here</string>
-    <string name="try_hint">Type a message, e.g. \"hi sir i cant come tomorow my bike is not working\"</string>
+    <string name="try_hint">Type a message, e.g. \"hi sir i cant come tomorow\" or \"aye nii aj khany pe\"</string>
     <string name="try_button">Make Professional</string>
     <string name="type_something">Type a message first</string>
 
     <string name="dialog_title">Professional version</string>
     <string name="working">Polishing your message…</string>
+    <string name="writing">Writing…</string>
     <string name="no_text">No text selected</string>
     <string name="cancel">Cancel</string>
     <string name="copy">Copy</string>

@@ -12,6 +12,8 @@ public class ProTileService extends TileService {
     @Override
     public void onStartListening() {
         super.onStartListening();
+        // The panel was just pulled down: start connecting now so the tap feels instant.
+        Rewriter.warmUp(Prefs.getProvider(this));
         Tile tile = getQsTile();
         if (tile != null) {
             tile.setState(Tile.STATE_INACTIVE);

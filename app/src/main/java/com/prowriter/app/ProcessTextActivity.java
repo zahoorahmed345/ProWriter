@@ -69,7 +69,8 @@ public class ProcessTextActivity extends Activity {
 
         new Thread(() -> {
             try {
-                String rewritten = Rewriter.rewrite(provider, key, original, english);
+                String rewritten = Rewriter.rewrite(provider, key, original, english,
+                        soFar -> runOnUiThread(() -> showPartial(soFar)));
                 runOnUiThread(() -> showResult(rewritten));
             } catch (Rewriter.RewriteException e) {
                 runOnUiThread(() -> showError(e.getMessage(), e.missingKey));
@@ -89,6 +90,14 @@ public class ProcessTextActivity extends Activity {
         replaceBtn.setVisibility(View.GONE);
         copyBtn.setVisibility(View.GONE);
         retryBtn.setVisibility(View.GONE);
+    }
+
+    /** Shows the answer while it is still being written. */
+    private void showPartial(String soFar) {
+        if (gone() || soFar.isEmpty()) return;
+        status.setText(R.string.writing);
+        result.setVisibility(View.VISIBLE);
+        result.setText(soFar);
     }
 
     private void showResult(String text) {
