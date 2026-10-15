@@ -13,16 +13,22 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 /**
  * Opened from the Pro Writer quick-settings tile (or the app-icon shortcut).
- * Takes the text you just copied, shows the professional version and copies it back,
- * so you only need to paste it. Needs no special permission: the app only sees
- * your clipboard at the moment you open this.
+ * Takes the text you just copied, shows the professional (or translated) version and copies
+ * it back, so you only need to paste it. Needs no special permission: the app only sees your
+ * clipboard at the moment you open this.
  */
 public class ClipboardActivity extends Activity {
 
     private boolean started;
     private String original;
+    private Rewriter.Target target;
+    private final Map<Rewriter.Target, String> results = new EnumMap<>(Rewriter.Target.class);
+    private int requestId;
 
     private ProgressBar progress;
     private TextView status;
@@ -45,6 +51,14 @@ public class ClipboardActivity extends Activity {
         copyBtn = findViewById(R.id.btn_copy);
         retryBtn = findViewById(R.id.btn_retry);
         findViewById(R.id.btn_replace).setVisibility(View.GONE);
+
+        // Opens in the mode you used last time.
+        target = Prefs.getLastTarget(this);
+        new ModeChips(findViewById(R.id.mode_chips), target, t -> {
+            target = t;
+            Prefs.setLastTarget(this, t);
+            if (original != null) start();
+        });
 
         doneBtn.setOnClickListener(v -> finish());
         copyBtn.setOnClickListener(v -> {
@@ -85,18 +99,31 @@ public class ClipboardActivity extends Activity {
     }
 
     private void start() {
+        final int id = ++requestId;
+        final Rewriter.Target t = target;
+        String cached = results.get(t);
+        if (cached != null) {
+            showResult(cached);
+            return;
+        }
         showLoading();
         final Rewriter.Provider provider = Prefs.getProvider(this);
         final String key = Prefs.getApiKey(this, provider);
-        final boolean english = Prefs.forceEnglish(this);
 
         new Thread(() -> {
             try {
-                String rewritten = Rewriter.rewrite(provider, key, original, english,
-                        soFar -> runOnUiThread(() -> showPartial(soFar)));
-                runOnUiThread(() -> showResult(rewritten));
+                String rewritten = Rewriter.rewrite(provider, key, original, t,
+                        soFar -> runOnUiThread(() -> {
+                            if (id == requestId) showPartial(soFar);
+                        }));
+                runOnUiThread(() -> {
+                    results.put(t, rewritten);
+                    if (id == requestId) showResult(rewritten);
+                });
             } catch (Rewriter.RewriteException e) {
-                runOnUiThread(() -> showError(e.getMessage(), true));
+                runOnUiThread(() -> {
+                    if (id == requestId) showError(e.getMessage(), true);
+                });
             }
         }).start();
     }

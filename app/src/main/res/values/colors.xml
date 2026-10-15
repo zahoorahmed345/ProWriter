@@ -3,4 +3,5 @@
     <color name="brand">#2F4BD8</color>
     <color name="brand_dark">#1E33A6</color>
     <color name="icon_bg">#2F4BD8</color>
+    <color name="chip_text_off">#2F4BD8</color>
 </resources>

@@ -41,6 +41,23 @@ final class Prefs {
         sp(c).edit().putString("api_key_" + p.name(), key == null ? "" : key.trim()).apply();
     }
 
+    static Rewriter.Target getLastTarget(Context c) {
+        String name = sp(c).getString("last_target", null);
+        if (name == null) {
+            // Version 1.4 had an "Always write in English" switch.
+            return sp(c).getBoolean(KEY_ENGLISH, false) ? Rewriter.Target.ENGLISH : Rewriter.Target.SAME;
+        }
+        try {
+            return Rewriter.Target.valueOf(name);
+        } catch (IllegalArgumentException e) {
+            return Rewriter.Target.SAME;
+        }
+    }
+
+    static void setLastTarget(Context c, Rewriter.Target t) {
+        sp(c).edit().putString("last_target", t.name()).apply();
+    }
+
     static boolean forceEnglish(Context c) {
         return sp(c).getBoolean(KEY_ENGLISH, false);
     }

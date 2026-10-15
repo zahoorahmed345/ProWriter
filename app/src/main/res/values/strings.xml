@@ -3,15 +3,32 @@
     <string name="app_name">Pro Writer</string>
     <!-- This is the label shown in the text-selection menu of every app -->
     <string name="process_label">Make Professional</string>
+    <string name="process_label_english">Professional English</string>
+    <string name="process_label_chinese">Professional 中文</string>
+
+    <!-- The three modes -->
+    <string name="mode_same">Professional</string>
+    <string name="mode_english">English</string>
+    <string name="mode_chinese">中文</string>
 
     <string name="how_title">How to use</string>
     <string name="provider_label">AI provider</string>
-    <string name="how_steps">1. Choose an AI provider, paste its API key below and tap Save.\n\n<b>WhatsApp, Gmail and most apps:</b>\nType your message → select it → tap \"Make Professional\" (it may be under ⋮) → Replace.\n\n<b>WeChat:</b>\nType your message → select it → Copy → pull down quick settings → tap \"Pro Writer\" → long-press the message box → Paste.</string>
+    <string name="how_steps">1. Choose an AI provider, paste its API key below and tap Save.
+
+<b>Three modes</b> (switch any time with the buttons in the pop-up):
+• Professional: polished, very polite, same language
+• English: polished and translated to English
+• 中文: polished and translated to Chinese
+
+<b>WhatsApp, Gmail and most apps:</b>
+Type your message → select it → tap \"Make Professional\", \"Professional English\" or \"Professional 中文\" (may be under ⋮) → Replace.
+
+<b>WeChat:</b>
+Type your message → select it → Copy → swipe down quick settings → tap \"Pro Writer\" → long-press the message box → Paste.</string>
 
     <string name="key_label">API key</string>
     <string name="key_hint">Paste your key</string>
     <string name="key_link"></string>
-    <string name="force_english">Always write the result in English (translate Roman Urdu and other languages)</string>
     <string name="save">Save</string>
     <string name="key_saved">Key saved</string>
     <string name="key_cleared">Key removed</string>

@@ -12,7 +12,6 @@ import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
@@ -32,6 +31,7 @@ public class MainActivity extends Activity {
     private TextView tryResult;
     private ProgressBar tryProgress;
     private Button tryBtn;
+    private ModeChips modeChips;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,9 +69,8 @@ public class MainActivity extends Activity {
         });
         showProvider();
 
-        CheckBox english = findViewById(R.id.force_english);
-        english.setChecked(Prefs.forceEnglish(this));
-        english.setOnCheckedChangeListener((b, checked) -> Prefs.setForceEnglish(this, checked));
+        modeChips = new ModeChips(findViewById(R.id.mode_chips), Prefs.getLastTarget(this),
+                t -> Prefs.setLastTarget(this, t));
 
         findViewById(R.id.btn_save).setOnClickListener(v -> {
             String key = keyInput.getText().toString().trim();
@@ -144,7 +143,7 @@ public class MainActivity extends Activity {
         final Rewriter.Provider p = provider;
         String key = keyInput.getText().toString().trim();
         if (!key.isEmpty()) Prefs.setApiKey(this, p, key);
-        boolean english = Prefs.forceEnglish(this);
+        final Rewriter.Target target = modeChips.get();
 
         tryBtn.setEnabled(false);
         tryProgress.setVisibility(View.VISIBLE);
@@ -153,7 +152,7 @@ public class MainActivity extends Activity {
         new Thread(() -> {
             String output;
             try {
-                output = Rewriter.rewrite(p, key, text, english, soFar -> runOnUiThread(() -> {
+                output = Rewriter.rewrite(p, key, text, target, soFar -> runOnUiThread(() -> {
                     if (!isFinishing() && !isDestroyed()) tryResult.setText(soFar);
                 }));
             } catch (Rewriter.RewriteException e) {

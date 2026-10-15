@@ -3,6 +3,7 @@ package com.prowriter.app;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -14,14 +15,20 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 /**
- * Opens when the user selects text in any app and taps "Make Professional".
- * Shows the professional version and lets the user replace the original text or copy it.
+ * Opens when you select text in an app and tap "Make Professional", "Professional English"
+ * or "Professional 中文". Shows the result; "Replace" puts it in place of your text.
  */
 public class ProcessTextActivity extends Activity {
 
     private String original;
     private boolean readOnly;
+    private Rewriter.Target target;
+    private final Map<Rewriter.Target, String> results = new EnumMap<>(Rewriter.Target.class);
+    private int requestId;
 
     private ProgressBar progress;
     private TextView status;
@@ -42,6 +49,7 @@ public class ProcessTextActivity extends Activity {
         }
         original = text.toString();
         readOnly = getIntent().getBooleanExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, false);
+        target = targetFromMenuItem();
 
         setContentView(R.layout.activity_process);
         setFinishOnTouchOutside(false);
@@ -54,26 +62,54 @@ public class ProcessTextActivity extends Activity {
         copyBtn = findViewById(R.id.btn_copy);
         retryBtn = findViewById(R.id.btn_retry);
 
+        new ModeChips(findViewById(R.id.mode_chips), target, t -> {
+            target = t;
+            start();
+        });
+
         findViewById(R.id.btn_cancel).setOnClickListener(v -> finish());
         replaceBtn.setOnClickListener(v -> replace());
         copyBtn.setOnClickListener(v -> copy());
+        retryBtn.setOnClickListener(v -> start());
 
         start();
     }
 
+    /** Which menu item was tapped: each one is a separate entry pointing to this screen. */
+    private Rewriter.Target targetFromMenuItem() {
+        ComponentName cn = getComponentName();
+        String name = cn == null ? "" : cn.getClassName();
+        if (name.endsWith("English")) return Rewriter.Target.ENGLISH;
+        if (name.endsWith("Chinese")) return Rewriter.Target.CHINESE;
+        return Rewriter.Target.SAME;
+    }
+
     private void start() {
+        final int id = ++requestId;
+        final Rewriter.Target t = target;
+        String cached = results.get(t);
+        if (cached != null) {
+            showResult(cached);
+            return;
+        }
         showLoading();
         final Rewriter.Provider provider = Prefs.getProvider(this);
         final String key = Prefs.getApiKey(this, provider);
-        final boolean english = Prefs.forceEnglish(this);
 
         new Thread(() -> {
             try {
-                String rewritten = Rewriter.rewrite(provider, key, original, english,
-                        soFar -> runOnUiThread(() -> showPartial(soFar)));
-                runOnUiThread(() -> showResult(rewritten));
+                String rewritten = Rewriter.rewrite(provider, key, original, t,
+                        soFar -> runOnUiThread(() -> {
+                            if (id == requestId) showPartial(soFar);
+                        }));
+                runOnUiThread(() -> {
+                    results.put(t, rewritten);
+                    if (id == requestId) showResult(rewritten);
+                });
             } catch (Rewriter.RewriteException e) {
-                runOnUiThread(() -> showError(e.getMessage(), e.missingKey));
+                runOnUiThread(() -> {
+                    if (id == requestId) showError(e.getMessage(), e.missingKey);
+                });
             }
         }).start();
     }
