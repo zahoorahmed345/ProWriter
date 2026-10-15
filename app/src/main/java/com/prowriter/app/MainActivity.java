@@ -1,7 +1,10 @@
 package com.prowriter.app;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
@@ -77,6 +80,38 @@ public class MainActivity extends Activity {
         });
 
         tryBtn.setOnClickListener(v -> tryIt());
+
+        // Floating button (accessibility service)
+        findViewById(R.id.btn_float).setOnClickListener(v -> {
+            try {
+                startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+            } catch (Exception e) {
+                startActivity(new Intent(Settings.ACTION_SETTINGS));
+            }
+        });
+        CheckBox auto = findViewById(R.id.auto_suggest);
+        auto.setChecked(Prefs.autoSuggest(this));
+        auto.setOnCheckedChangeListener((b, checked) -> Prefs.setAutoSuggest(this, checked));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        boolean on = floatingButtonEnabled();
+        ((TextView) findViewById(R.id.float_status)).setText(on ? R.string.float_on : R.string.float_off);
+        ((Button) findViewById(R.id.btn_float)).setText(on ? R.string.float_settings : R.string.float_turn_on);
+        findViewById(R.id.float_help).setVisibility(on ? View.GONE : View.VISIBLE);
+    }
+
+    private boolean floatingButtonEnabled() {
+        String enabled = Settings.Secure.getString(getContentResolver(),
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+        if (enabled == null) return false;
+        ComponentName me = new ComponentName(this, ProAssistService.class);
+        for (String s : enabled.split(":")) {
+            if (me.equals(ComponentName.unflattenFromString(s))) return true;
+        }
+        return false;
     }
 
     /** Updates the key box, its label and the "get a key" link for the selected provider. */

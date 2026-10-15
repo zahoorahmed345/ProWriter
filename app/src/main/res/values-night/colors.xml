@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="overlay_bg">#2A2B33</color>
+    <color name="overlay_text">#F2F2F5</color>
+    <color name="overlay_subtle">#B0B0BC</color>
+    <color name="overlay_stroke">#558FA2FF</color>
+</resources>

@@ -242,9 +242,12 @@ final class Rewriter {
             }
             int code = conn.getResponseCode();
             boolean ok = code >= 200 && code < 300;
+            // Not calling disconnect(): leaving the connection open lets the next request
+            // reuse it, which skips the slow connection setup and makes rewrites faster.
             return new Response(code, readAll(ok ? conn.getInputStream() : conn.getErrorStream()));
-        } finally {
+        } catch (Exception e) {
             conn.disconnect();
+            throw e;
         }
     }
 

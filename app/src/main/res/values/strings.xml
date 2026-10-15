@@ -6,7 +6,7 @@
 
     <string name="how_title">How to use</string>
     <string name="provider_label">AI provider</string>
-    <string name="how_steps">1. Choose an AI provider, paste its API key below and tap Save.\n2. In any app (WhatsApp, Gmail, Messages…), type your message.\n3. Long-press the text and tap Select all.\n4. Tap \"Make Professional\" in the menu. If you don\'t see it, tap ⋮ (more) first.\n5. Tap Replace, and send.</string>
+    <string name="how_steps">1. Choose an AI provider, paste its API key below and tap Save.\n2. Turn on the floating button (below).\n3. In any app (WeChat, WhatsApp, Gmail…), type your message and pause for a moment.\n4. The professional version pops up above the keyboard. Tap Use, and send.\n\nYou can also tap the ✨ Pro button any time, or select text and choose \"Make Professional\" from the menu.</string>
 
     <string name="key_label">API key</string>
     <string name="key_hint">Paste your key</string>
@@ -15,6 +15,16 @@
     <string name="save">Save</string>
     <string name="key_saved">Key saved</string>
     <string name="key_cleared">Key removed</string>
+
+    <!-- Floating button settings -->
+    <string name="float_title">Floating button (all apps, including WeChat)</string>
+    <string name="float_on">Status: ON ✓</string>
+    <string name="float_off">Status: OFF</string>
+    <string name="float_turn_on">Turn on floating button</string>
+    <string name="float_settings">Open Accessibility settings</string>
+    <string name="float_help">Tap the button, find \"Pro Writer floating button\" (it may be under Downloaded apps or Installed apps), and switch it on.\n\nIf Android says it\'s a restricted setting: go to Settings → Apps → Pro Writer → ⋮ (top right) → Allow restricted settings, then try again.\n\nOn Xiaomi phones, also set Pro Writer\'s Battery saver to \"No restrictions\" so the button keeps working.</string>
+    <string name="auto_suggest">Show the professional version automatically when I stop typing</string>
+    <string name="auto_suggest_help">Your draft is sent to the AI each time you pause. Turn this off to send it only when you tap ✨ Pro.</string>
 
     <string name="try_title">Try it here</string>
     <string name="try_hint">Type a message, e.g. \"hi sir i cant come tomorow my bike is not working\"</string>
@@ -30,4 +40,18 @@
     <string name="retry">Try again</string>
     <string name="open_settings">Open settings</string>
     <string name="copied">Copied</string>
+
+    <!-- Floating view -->
+    <string name="overlay_pill">✨ Pro</string>
+    <string name="overlay_working">Pro</string>
+    <string name="overlay_title">PROFESSIONAL VERSION</string>
+    <string name="overlay_error_title">COULDN\'T REWRITE</string>
+    <string name="overlay_use">Use</string>
+    <string name="overlay_dismiss">Dismiss</string>
+    <string name="already_good">Your message already looks professional</string>
+    <string name="copied_paste">Copied. Long-press the message box and tap Paste.</string>
+
+    <!-- Accessibility service -->
+    <string name="a11y_label">Pro Writer floating button</string>
+    <string name="a11y_description">Shows a ✨ Pro button above your keyboard. When you stop typing, Pro Writer sends the text you are typing to the AI provider you chose and offers a professional version that you can use with one tap. It never reads password fields and does nothing until you type.</string>
 </resources>

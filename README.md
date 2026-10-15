@@ -1,13 +1,14 @@
 # Pro Writer
 
-Pro Writer adds a **"Make Professional"** button to the text-selection menu on your Android phone.
-It works in WhatsApp, Gmail, Messages, LinkedIn, and almost any other app, and with any keyboard.
+Pro Writer turns your messages into a professional, mistake-free version, in any app on your
+Android phone (WeChat, WhatsApp, Gmail, Messages, LinkedIn…).
 
-**How it works:** type your message → long-press → *Select all* → tap **Make Professional**
-(it may be under **⋮**) → tap **Replace** → send.
+**Floating button (recommended):** after you turn it on, a **✨ Pro** button appears above the
+keyboard. When you stop typing for a moment, the professional version pops up automatically;
+tap **Use** to replace your text, then send.
 
-The result fixes grammar, spelling and punctuation and makes the tone polite and professional,
-without adding things you didn't say. You can edit the result before replacing.
+**Selection menu:** you can also select text and choose **Make Professional** from the menu
+(may be under **⋮**). This works in most apps, but not in WeChat.
 
 ---
 
@@ -57,6 +58,9 @@ It appears in `app/build/outputs/apk/debug/app-debug.apk`; copy it to your phone
 3. (Optional) Tick **Always write the result in English** if you sometimes type in another
    language and want English output.
 4. Use the **Try it here** box to test it.
+5. Tap **Turn on floating button** and switch on **Pro Writer floating button** in Accessibility.
+   If Android calls it a restricted setting: Settings → Apps → Pro Writer → ⋮ → **Allow restricted
+   settings**, then try again. On Xiaomi phones, also set Battery saver to **No restrictions**.
 
 ## Tips and troubleshooting
 
