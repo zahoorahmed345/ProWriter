@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pro Writer</string>
+    <!-- This is the label shown in the text-selection menu of every app -->
+    <string name="process_label">Make Professional</string>
+
+    <string name="how_title">How to use</string>
+    <string name="how_steps">1. Paste your API key below and tap Save.\n2. In any app (WhatsApp, Gmail, Messages…), type your message.\n3. Long-press the text and tap Select all.\n4. Tap \"Make Professional\" in the menu. If you don\'t see it, tap ⋮ (more) first.\n5. Tap Replace, and send.</string>
+
+    <string name="key_label">Claude API key</string>
+    <string name="key_hint">sk-ant-…</string>
+    <string name="key_link"><a href="https://console.anthropic.com/settings/keys">Get a key at console.anthropic.com</a></string>
+    <string name="force_english">Always write the result in English</string>
+    <string name="save">Save</string>
+    <string name="key_saved">Key saved</string>
+    <string name="key_cleared">Key removed</string>
+
+    <string name="try_title">Try it here</string>
+    <string name="try_hint">Type a message, e.g. \"hi sir i cant come tomorow my bike is not working\"</string>
+    <string name="try_button">Make Professional</string>
+    <string name="type_something">Type a message first</string>
+
+    <string name="dialog_title">Professional version</string>
+    <string name="working">Polishing your message…</string>
+    <string name="no_text">No text selected</string>
+    <string name="cancel">Cancel</string>
+    <string name="copy">Copy</string>
+    <string name="replace">Replace</string>
+    <string name="retry">Try again</string>
+    <string name="open_settings">Open settings</string>
+    <string name="copied">Copied</string>
+</resources>
