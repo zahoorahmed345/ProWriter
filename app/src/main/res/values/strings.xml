@@ -39,7 +39,7 @@
     <string name="about_title">What is ProChat?</string>
     <string name="about_body">ProChat helps you write polished, polite and professional messages in any chat app: WeChat, WhatsApp, Gmail, Messages and more.\n\nWrite the way you normally do, even quickly in Roman Urdu with spelling mistakes, and ProChat turns it into a message you\'d be proud to send. It can also write replies for you and translate into English or Chinese.</string>
     <string name="modes_title">The five modes</string>
-    <string name="mode_same_desc">Your message, polished and professional, in the same language.</string>
+    <string name="mode_same_desc">Your message, polished and professional, in the same language. Right after ENG, 中文 or Urdu, Pro polishes that translation.</string>
     <string name="mode_reply_desc">A professional reply to a message you received.</string>
     <string name="mode_english_desc">Your message, polished and translated into English.</string>
     <string name="mode_chinese_desc">Your message, polished and translated into Chinese, with pinyin to help you read it. Only the Chinese characters are copied.</string>

@@ -242,7 +242,7 @@
                 android:orientation="horizontal">
                 <TextView
                     style="@style/ModeChip"
-                    android:layout_width="68dp"
+                    android:layout_width="84dp"
                     android:layout_marginEnd="12dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
@@ -261,7 +261,7 @@
                 android:orientation="horizontal">
                 <TextView
                     style="@style/ModeChip"
-                    android:layout_width="68dp"
+                    android:layout_width="84dp"
                     android:layout_marginEnd="12dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
@@ -280,7 +280,7 @@
                 android:orientation="horizontal">
                 <TextView
                     style="@style/ModeChip"
-                    android:layout_width="68dp"
+                    android:layout_width="84dp"
                     android:layout_marginEnd="12dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
@@ -299,7 +299,7 @@
                 android:orientation="horizontal">
                 <TextView
                     style="@style/ModeChip"
-                    android:layout_width="68dp"
+                    android:layout_width="84dp"
                     android:layout_marginEnd="12dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
@@ -318,7 +318,7 @@
                 android:orientation="horizontal">
                 <TextView
                     style="@style/ModeChip"
-                    android:layout_width="68dp"
+                    android:layout_width="84dp"
                     android:layout_marginEnd="12dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"

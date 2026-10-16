@@ -17,7 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -36,7 +36,10 @@ public class ClipboardActivity extends Activity {
     private String original;      // copied text, or null when using voice
     private byte[] audio;         // voice recording, or null when using copied text
     private Rewriter.Target target;
-    private final Map<Rewriter.Target, String> results = new EnumMap<>(Rewriter.Target.class);
+    /** Results by mode, plus "SAME>ENGLISH" etc. for Pro applied to a translation. */
+    private final Map<String, String> results = new HashMap<>();
+    /** The last translation shown (ENG, 中文 or Urdu). Pro then polishes that text. */
+    private Rewriter.Target lastTranslation;
     private int requestId;
 
     private ProgressBar progress;
@@ -177,6 +180,7 @@ public class ClipboardActivity extends Activity {
         original = null;
         audio = null;
         results.clear();
+        lastTranslation = null;
 
         // Reply doesn't make sense for a message you speak yourself.
         chips.setEnabled(Rewriter.Target.REPLY, false);
@@ -247,21 +251,38 @@ public class ClipboardActivity extends Activity {
     private void start() {
         final int id = ++requestId;
         final Rewriter.Target t = target;
-        String cached = results.get(t);
+
+        // What to work on: normally your original text or recording. But Pro right after a
+        // translation polishes that translation (e.g. 中文 → Pro improves the Chinese).
+        final String cacheKey;
+        final String text;
+        final byte[] voice;
+        String translated = t == Rewriter.Target.SAME && lastTranslation != null
+                ? results.get(lastTranslation.name()) : null;
+        if (translated != null) {
+            cacheKey = "SAME>" + lastTranslation.name();
+            text = Rewriter.split(translated)[0];
+            voice = null;
+        } else {
+            cacheKey = t.name();
+            text = original;
+            voice = audio;
+        }
+        if (Rewriter.isTranslation(t)) lastTranslation = t;
+
+        String cached = results.get(cacheKey);
         if (cached != null) {
             showResult(cached);
             return;
         }
         showLoading();
         final Rewriter.Speed speed = Prefs.getSpeed(this);
-        final byte[] voice = audio;
-        final String text = original;
         final Rewriter.Provider provider = Prefs.getProvider(this);
         final String key = voice != null
                 ? Prefs.getApiKey(this, Rewriter.Provider.GEMINI)
                 : Prefs.getApiKey(this, provider);
 
-        if (text != null) Prefs.markClipUsed(this, text);
+        if (text != null && translated == null) Prefs.markClipUsed(this, text);
 
         new Thread(() -> {
             try {
@@ -272,7 +293,7 @@ public class ClipboardActivity extends Activity {
                         ? Rewriter.rewriteVoice(key, voice, VoiceRecorder.MIME_TYPE, t, speed, partial)
                         : Rewriter.rewrite(provider, key, text, t, speed, partial);
                 runOnUiThread(() -> {
-                    results.put(t, rewritten);
+                    results.put(cacheKey, rewritten);
                     if (id == requestId) showResult(rewritten);
                 });
             } catch (Rewriter.RewriteException e) {

@@ -90,6 +90,11 @@ final class Rewriter {
         }
     }
 
+    /** ENG, 中文 and Urdu translate; after one of them, Pro polishes that translation. */
+    static boolean isTranslation(Target t) {
+        return t == Target.ENGLISH || t == Target.CHINESE || t == Target.URDU;
+    }
+
     /** Receives the text written so far, so the screen can show it word by word. */
     interface Partial {
         void onText(String soFar);

@@ -15,7 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -27,7 +27,10 @@ public class ProcessTextActivity extends Activity {
     private String original;
     private boolean readOnly;
     private Rewriter.Target target;
-    private final Map<Rewriter.Target, String> results = new EnumMap<>(Rewriter.Target.class);
+    /** Results by mode, plus "SAME>ENGLISH" etc. for Pro applied to a translation. */
+    private final Map<String, String> results = new HashMap<>();
+    /** The last translation shown (ENG, 中文 or Urdu). Pro then polishes that text. */
+    private Rewriter.Target lastTranslation;
     private int requestId;
 
     private ProgressBar progress;
@@ -92,7 +95,22 @@ public class ProcessTextActivity extends Activity {
     private void start() {
         final int id = ++requestId;
         final Rewriter.Target t = target;
-        String cached = results.get(t);
+
+        // Pro right after a translation polishes that translation, not your original text.
+        final String cacheKey;
+        final String text;
+        String translated = t == Rewriter.Target.SAME && lastTranslation != null
+                ? results.get(lastTranslation.name()) : null;
+        if (translated != null) {
+            cacheKey = "SAME>" + lastTranslation.name();
+            text = Rewriter.split(translated)[0];
+        } else {
+            cacheKey = t.name();
+            text = original;
+        }
+        if (Rewriter.isTranslation(t)) lastTranslation = t;
+
+        String cached = results.get(cacheKey);
         if (cached != null) {
             showResult(cached);
             return;
@@ -104,12 +122,12 @@ public class ProcessTextActivity extends Activity {
 
         new Thread(() -> {
             try {
-                String rewritten = Rewriter.rewrite(provider, key, original, t, speed,
+                String rewritten = Rewriter.rewrite(provider, key, text, t, speed,
                         soFar -> runOnUiThread(() -> {
                             if (id == requestId) showPartial(soFar);
                         }));
                 runOnUiThread(() -> {
-                    results.put(t, rewritten);
+                    results.put(cacheKey, rewritten);
                     if (id == requestId) showResult(rewritten);
                 });
             } catch (Rewriter.RewriteException e) {
