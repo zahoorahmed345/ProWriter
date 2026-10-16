@@ -25,7 +25,7 @@
     <string name="setup_button">Open Settings</string>
     <string name="try_title">Try it</string>
     <string name="try_sub">Type any message, choose a mode and tap Generate.</string>
-    <string name="try_hint">e.g. \"send me file\" or \"aye nii aj khany pe\"</string>
+    <string name="try_hint">Write your message here</string>
     <string name="try_button">Generate</string>
     <string name="result_label">Result</string>
     <string name="type_something">Type a message first</string>
