@@ -42,7 +42,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Extra selection-menu entries: Reply, ENG, 中文 and اردو -->
+        <!-- Extra selection-menu entries: Reply, ENG, 中文 and Urdu -->
         <activity-alias
             android:name=".MakeProReply"
             android:exported="true"

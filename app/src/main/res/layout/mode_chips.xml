@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Pro | Reply | ENG | 中文 | اردو (scrolls sideways on narrow screens) -->
+<!-- Pro | Reply | ENG | 中文 | Urdu (scrolls sideways on narrow screens) -->
 <HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/mode_chips"
     android:layout_width="match_parent"

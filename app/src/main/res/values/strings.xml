@@ -8,14 +8,14 @@
     <string name="process_label_reply">ProChat Reply</string>
     <string name="process_label_english">ProChat ENG</string>
     <string name="process_label_chinese">ProChat 中文</string>
-    <string name="process_label_urdu">ProChat اردو</string>
+    <string name="process_label_urdu">ProChat Urdu</string>
 
     <!-- The four modes -->
     <string name="mode_same">Pro</string>
     <string name="mode_reply">Reply</string>
     <string name="mode_english">ENG</string>
     <string name="mode_chinese">中文</string>
-    <string name="mode_urdu">اردو</string>
+    <string name="mode_urdu">Urdu</string>
 
     <!-- Tabs -->
     <string name="tab_home">Home</string>
@@ -43,11 +43,11 @@
     <string name="mode_reply_desc">A professional reply to a message you received.</string>
     <string name="mode_english_desc">Your message, polished and translated into English.</string>
     <string name="mode_chinese_desc">Your message, polished and translated into Chinese, with pinyin to help you read it. Only the Chinese characters are copied.</string>
-    <string name="mode_urdu_desc">Your message, polished and written in Urdu script (اردو). For Roman Urdu, use Pro.</string>
+    <string name="mode_urdu_desc">Your message, polished and translated into Roman Urdu (Urdu in English letters), from any language.</string>
     <string name="apps_title">WhatsApp, Gmail and most apps</string>
     <string name="apps_1">Type your message. For a reply, long-press the message you received.</string>
     <string name="apps_2">Select the text.</string>
-    <string name="apps_3">In the menu, tap ProChat, ProChat Reply, ProChat ENG, ProChat 中文 or ProChat اردو. Tap ⋮ if you don\'t see them.</string>
+    <string name="apps_3">In the menu, tap ProChat, ProChat Reply, ProChat ENG, ProChat 中文 or ProChat Urdu. Tap ⋮ if you don\'t see them.</string>
     <string name="apps_4">Tap Replace (or Copy for a reply) and send.</string>
     <string name="wechat_title">WeChat</string>
     <string name="wechat_1">Select your message (or the message you received) and tap Copy.</string>
@@ -108,7 +108,7 @@
     <string name="shortcut_voice_short">Speak a message</string>
     <string name="shortcut_voice_long">Speak a message to ProChat</string>
     <string name="voice_title">Voice</string>
-    <string name="voice_body">Speak instead of typing, in Urdu, English, Chinese or a mix. ProChat listens and writes it in the mode you choose (Pro, ENG, 中文 or اردو), then copies it for you. Spoken Urdu is written in Roman Urdu. Voice uses Google Gemini.</string>
+    <string name="voice_body">Speak instead of typing, in Urdu, English, Chinese or a mix. ProChat listens and writes it in the mode you choose (Pro, ENG, 中文 or Urdu), then copies it for you. Spoken Urdu is written in Roman Urdu. Voice uses Google Gemini.</string>
     <string name="voice_1">Swipe down and tap the ProChat Voice tile (or tap 🎤 Speak in any ProChat pop-up).</string>
     <string name="voice_2">Speak your message, then tap Stop.</string>
     <string name="voice_3">The result is copied. Long-press the message box, tap Paste and send.</string>

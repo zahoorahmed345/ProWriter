@@ -3,7 +3,7 @@ package com.prowriter.app;
 import android.view.View;
 import android.widget.TextView;
 
-/** The buttons "Pro | Reply | ENG | 中文 | اردو" used in the pop-ups and the app. */
+/** The buttons "Pro | Reply | ENG | 中文 | Urdu" used in the pop-ups and the app. */
 final class ModeChips {
 
     interface Listener {
