@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Sparkle icon for the quick-settings tile (must be single-colour) -->
+<!-- Quick-settings tile: chat bubble with a sparkle cut out (single colour) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -7,8 +7,6 @@
     android:viewportHeight="24">
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M10,3 L11.8,8.2 L17,10 L11.8,11.8 L10,17 L8.2,11.8 L3,10 L8.2,8.2 Z" />
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M18,13 L18.9,15.1 L21,16 L18.9,16.9 L18,19 L17.1,16.9 L15,16 L17.1,15.1 Z" />
+        android:fillType="evenOdd"
+        android:pathData="M6,3 h12 a3,3 0 0 1 3,3 v9 a3,3 0 0 1 -3,3 h-7 l-4.5,3.5 v-3.6 Q3,17.6 3,15 v-9 a3,3 0 0 1 3,-3 z M12,6 Q12.5,9.9 16.5,10.5 Q12.5,11.1 12,15 Q11.5,11.1 7.5,10.5 Q11.5,9.9 12,6 z" />
 </vector>

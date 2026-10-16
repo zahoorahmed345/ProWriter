@@ -26,7 +26,7 @@ final class Rewriter {
     enum Provider {
         GEMINI("Google Gemini (free)", "Gemini API key", "AIza…",
                 "https://aistudio.google.com/apikey", "Get a free key at aistudio.google.com",
-                "gemini-3.8-flash"),
+                "gemini-3.6-flash"),
         CLAUDE("Claude (paid)", "Claude API key", "sk-ant-…",
                 "https://console.anthropic.com/settings/keys", "Get a key at console.anthropic.com",
                 "claude-haiku-5-5"),
@@ -74,6 +74,21 @@ final class Rewriter {
         CHINESE   // professional + translated to Simplified Chinese
     }
 
+    /** Speed vs quality for Gemini: which model and how much thinking. */
+    enum Speed {
+        FAST("gemini-3.5-flash-lite", "minimal"),
+        BALANCED("gemini-3.6-flash", "minimal"),
+        BEST("gemini-3.8-flash", "low");
+
+        final String model;
+        final String thinking;
+
+        Speed(String model, String thinking) {
+            this.model = model;
+            this.thinking = thinking;
+        }
+    }
+
     /** Receives the text written so far, so the screen can show it word by word. */
     interface Partial {
         void onText(String soFar);
@@ -82,9 +97,9 @@ final class Rewriter {
     private Rewriter() {}
 
     static String rewrite(Provider provider, String apiKey, String text, Target target,
-                          Partial partial) throws RewriteException {
+                          Speed speed, Partial partial) throws RewriteException {
         if (apiKey == null || apiKey.trim().isEmpty()) {
-            throw new RewriteException("No " + provider.keyLabel + " yet. Open the Pro Writer app, "
+            throw new RewriteException("No " + provider.keyLabel + " yet. Open the ProChat app, "
                     + "paste your key and tap Save.", true);
         }
         String key = apiKey.trim();
@@ -102,11 +117,11 @@ final class Rewriter {
             String result;
             switch (provider) {
                 case GEMINI:
+                    Speed sp = speed == null ? Speed.BALANCED : speed;
                     try {
-                        // Best free model, thinking kept "low" so it stays quick.
-                        result = callGemini(provider.model, "low", key, system, userText, partial);
+                        result = callGemini(sp.model, sp.thinking, key, system, userText, partial);
                     } catch (RewriteException e) {
-                        if (!e.canFallBack) throw e;
+                        if (!e.canFallBack || sp.model.equals(GEMINI_FALLBACK_MODEL)) throw e;
                         // Limit reached or model unavailable: use the lighter free model instead.
                         result = callGemini(GEMINI_FALLBACK_MODEL, null, key, system, userText, partial);
                     }
@@ -496,12 +511,12 @@ final class Rewriter {
 
         if (r.code == 401 || lower.contains("api key not valid") || lower.contains("invalid api key")
                 || lower.contains("authentication")) {
-            return "Your " + p.keyLabel + " was rejected. Open the Pro Writer app and check that "
+            return "Your " + p.keyLabel + " was rejected. Open the ProChat app and check that "
                     + "you copied the whole key.";
         }
         if (lower.contains("location is not supported") || lower.contains("not available in your")) {
             return p.label + " is not available in your region. Try another provider in the "
-                    + "Pro Writer app.";
+                    + "ProChat app.";
         }
         if (r.code == 402 || lower.contains("insufficient balance") || lower.contains("credit balance")) {
             return "Your " + p.label + " account has no credit left. Add credit on the provider's "

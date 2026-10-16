@@ -99,10 +99,11 @@ public class ProcessTextActivity extends Activity {
         showLoading();
         final Rewriter.Provider provider = Prefs.getProvider(this);
         final String key = Prefs.getApiKey(this, provider);
+        final Rewriter.Speed speed = Prefs.getSpeed(this);
 
         new Thread(() -> {
             try {
-                String rewritten = Rewriter.rewrite(provider, key, original, t,
+                String rewritten = Rewriter.rewrite(provider, key, original, t, speed,
                         soFar -> runOnUiThread(() -> {
                             if (id == requestId) showPartial(soFar);
                         }));

@@ -58,6 +58,18 @@ final class Prefs {
         sp(c).edit().putString("last_target", t.name()).apply();
     }
 
+    static Rewriter.Speed getSpeed(Context c) {
+        try {
+            return Rewriter.Speed.valueOf(sp(c).getString("speed", Rewriter.Speed.BALANCED.name()));
+        } catch (IllegalArgumentException e) {
+            return Rewriter.Speed.BALANCED;
+        }
+    }
+
+    static void setSpeed(Context c, Rewriter.Speed s) {
+        sp(c).edit().putString("speed", s.name()).apply();
+    }
+
     static boolean forceEnglish(Context c) {
         return sp(c).getBoolean(KEY_ENGLISH, false);
     }

@@ -6,7 +6,7 @@ import android.os.Build;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 
-/** The "Pro Writer" tile in the quick-settings panel. Tapping it opens ClipboardActivity. */
+/** The "ProChat" tile in the quick-settings panel. Tapping it opens ClipboardActivity. */
 public class ProTileService extends TileService {
 
     @Override

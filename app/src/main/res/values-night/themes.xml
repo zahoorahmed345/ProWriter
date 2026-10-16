@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="android:Theme.DeviceDefault">
+    <style name="AppTheme" parent="android:Theme.DeviceDefault.NoActionBar">
         <item name="android:colorPrimary">@color/brand</item>
         <item name="android:colorPrimaryDark">@color/brand_dark</item>
-        <item name="android:colorAccent">#8FA2FF</item>
+        <item name="android:colorAccent">#9EAAFF</item>
+        <item name="android:statusBarColor">@color/brand_dark</item>
+        <item name="android:navigationBarColor">@color/screen_bg</item>
+        <item name="android:windowBackground">@color/screen_bg</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
     </style>
 
     <style name="DialogTheme" parent="android:Theme.DeviceDefault.Dialog">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowCloseOnTouchOutside">false</item>
-        <item name="android:colorAccent">#8FA2FF</item>
+        <item name="android:colorAccent">#9EAAFF</item>
+        <item name="android:windowBackground">@drawable/bg_dialog</item>
     </style>
 </resources>

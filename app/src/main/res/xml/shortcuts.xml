@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Long-press the Pro Writer icon → "Polish copied text" -->
+<!-- Long-press the ProChat icon → "Polish copied text" -->
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <shortcut
         android:enabled="true"

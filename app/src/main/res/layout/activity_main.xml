@@ -1,166 +1,482 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:fitsSystemWindows="true">
+    android:background="@color/screen_bg"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
 
+    <!-- Header: logo, name, tagline and tabs -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_header"
         android:orientation="vertical"
-        android:padding="20dp">
-
-        <!-- How to use -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/how_title"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:lineSpacingMultiplier="1.25"
-            android:text="@string/how_steps"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <!-- AI provider (radio buttons are added in MainActivity) -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:text="@string/provider_label"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textStyle="bold" />
-
-        <RadioGroup
-            android:id="@+id/provider_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:orientation="vertical" />
-
-        <!-- API key -->
-        <TextView
-            android:id="@+id/key_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/key_label"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textStyle="bold" />
-
-        <EditText
-            android:id="@+id/api_key"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/key_hint"
-            android:importantForAutofill="no"
-            android:inputType="textPassword"
-            android:singleLine="true" />
-
-        <TextView
-            android:id="@+id/key_link"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/key_link"
-            android:textColorLink="?android:attr/colorAccent" />
-
-
-        <Button
-            android:id="@+id/btn_save"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/save" />
-
-        <!-- WeChat shortcut -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:text="@string/tile_title"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:lineSpacingMultiplier="1.2"
-            android:text="@string/tile_help"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <Button
-            android:id="@+id/btn_tile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="@string/tile_add" />
-
-
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="28dp"
-            android:layout_marginBottom="20dp"
-            android:background="#33888888" />
-
-        <!-- Try it -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/try_title"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textStyle="bold" />
-
-        <EditText
-            android:id="@+id/try_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="top|start"
-            android:hint="@string/try_hint"
-            android:importantForAutofill="no"
-            android:inputType="textMultiLine"
-            android:minLines="3" />
-
-        <include layout="@layout/mode_chips" />
+        android:paddingStart="20dp"
+        android:paddingTop="18dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="18dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btn_try"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/try_button" />
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/app_name"
+                android:src="@mipmap/ic_launcher" />
 
-            <ProgressBar
-                android:id="@+id/try_progress"
-                style="?android:attr/progressBarStyleSmall"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:visibility="gone" />
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_name"
+                    android:textColor="#FFFFFF"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:alpha="0.85"
+                    android:text="@string/tagline"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13.5sp" />
+            </LinearLayout>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/try_result"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:lineSpacingMultiplier="1.2"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textIsSelectable="true" />
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_tabs"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <TextView android:id="@+id/tab_home" style="@style/Tab" android:text="@string/tab_home" />
+            <TextView android:id="@+id/tab_guide" style="@style/Tab" android:text="@string/tab_guide" />
+            <TextView android:id="@+id/tab_settings" style="@style/Tab" android:text="@string/tab_settings" />
+        </LinearLayout>
     </LinearLayout>
-</ScrollView>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- ===================== HOME ===================== -->
+        <ScrollView
+            android:id="@+id/page_home"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/setup_banner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_banner"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/setup_banner"
+                        android:textColor="@color/text_primary"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/btn_setup"
+                        style="@style/PrimaryButton"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/setup_button" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/Card">
+                    <TextView style="@style/CardTitle" android:text="@string/try_title" />
+                    <TextView style="@style/Body" android:text="@string/try_sub" />
+
+                    <EditText
+                        android:id="@+id/try_input"
+                        style="@style/Input"
+                        android:layout_marginTop="14dp"
+                        android:gravity="top|start"
+                        android:hint="@string/try_hint"
+                        android:inputType="textMultiLine|textCapSentences"
+                        android:minLines="3" />
+
+                    <include layout="@layout/mode_chips" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/btn_try"
+                            style="@style/PrimaryButton"
+                            android:text="@string/try_button" />
+
+                        <ProgressBar
+                            android:id="@+id/try_progress"
+                            style="?android:attr/progressBarStyleSmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:layout_marginTop="14dp"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/result_box"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/bg_result"
+                        android:orientation="vertical"
+                        android:padding="14dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            style="@style/Label"
+                            android:layout_marginTop="0dp"
+                            android:text="@string/result_label"
+                            android:textColor="@color/chip_text_off" />
+
+                        <TextView
+                            android:id="@+id/try_result"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:lineSpacingMultiplier="1.25"
+                            android:textColor="@color/text_primary"
+                            android:textIsSelectable="true"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/try_pinyin"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:textColor="@color/text_secondary"
+                            android:textIsSelectable="true"
+                            android:textSize="13.5sp"
+                            android:visibility="gone" />
+
+                        <Button
+                            android:id="@+id/btn_copy_result"
+                            style="@style/SecondaryButton"
+                            android:layout_marginTop="10dp"
+                            android:minHeight="38dp"
+                            android:text="@string/copy" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout style="@style/Card">
+                    <TextView style="@style/CardTitle" android:text="@string/tip_title" />
+                    <TextView style="@style/Body" android:text="@string/tip_body" />
+                    <Button
+                        android:id="@+id/btn_open_guide"
+                        style="@style/SecondaryButton"
+                        android:text="@string/tip_button" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- ===================== GUIDE ===================== -->
+        <ScrollView
+            android:id="@+id/page_guide"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="24dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout style="@style/Card">
+                    <TextView style="@style/CardTitle" android:text="@string/about_title" />
+                    <TextView style="@style/Body" android:text="@string/about_body" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/Card">
+                    <TextView style="@style/CardTitle" android:text="@string/modes_title" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView
+                    style="@style/ModeChip"
+                    android:layout_width="68dp"
+                    android:layout_marginEnd="12dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:background="@drawable/chip_on"
+                    android:gravity="center"
+                    android:clickable="false"
+                    android:text="@string/mode_same"
+                    android:textColor="#FFFFFF" />
+                <TextView style="@style/StepText" android:text="@string/mode_same_desc" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView
+                    style="@style/ModeChip"
+                    android:layout_width="68dp"
+                    android:layout_marginEnd="12dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:background="@drawable/chip_on"
+                    android:gravity="center"
+                    android:clickable="false"
+                    android:text="@string/mode_reply"
+                    android:textColor="#FFFFFF" />
+                <TextView style="@style/StepText" android:text="@string/mode_reply_desc" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView
+                    style="@style/ModeChip"
+                    android:layout_width="68dp"
+                    android:layout_marginEnd="12dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:background="@drawable/chip_on"
+                    android:gravity="center"
+                    android:clickable="false"
+                    android:text="@string/mode_english"
+                    android:textColor="#FFFFFF" />
+                <TextView style="@style/StepText" android:text="@string/mode_english_desc" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView
+                    style="@style/ModeChip"
+                    android:layout_width="68dp"
+                    android:layout_marginEnd="12dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:background="@drawable/chip_on"
+                    android:gravity="center"
+                    android:clickable="false"
+                    android:text="@string/mode_chinese"
+                    android:textColor="#FFFFFF" />
+                <TextView style="@style/StepText" android:text="@string/mode_chinese_desc" />
+            </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout style="@style/Card">
+                    <TextView style="@style/CardTitle" android:text="@string/apps_title" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal">
+                <TextView style="@style/StepNumber" android:text="1" />
+                <TextView style="@style/StepText" android:text="@string/apps_1" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+                <TextView style="@style/StepNumber" android:text="2" />
+                <TextView style="@style/StepText" android:text="@string/apps_2" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+                <TextView style="@style/StepNumber" android:text="3" />
+                <TextView style="@style/StepText" android:text="@string/apps_3" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+                <TextView style="@style/StepNumber" android:text="4" />
+                <TextView style="@style/StepText" android:text="@string/apps_4" />
+            </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout style="@style/Card">
+                    <TextView style="@style/CardTitle" android:text="@string/wechat_title" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal">
+                <TextView style="@style/StepNumber" android:text="1" />
+                <TextView style="@style/StepText" android:text="@string/wechat_1" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+                <TextView style="@style/StepNumber" android:text="2" />
+                <TextView style="@style/StepText" android:text="@string/wechat_2" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+                <TextView style="@style/StepNumber" android:text="3" />
+                <TextView style="@style/StepText" android:text="@string/wechat_3" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+                <TextView style="@style/StepNumber" android:text="4" />
+                <TextView style="@style/StepText" android:text="@string/wechat_4" />
+            </LinearLayout>
+                    <TextView style="@style/Body" android:layout_marginTop="14dp" android:text="@string/wechat_note" />
+                    <Button
+                        android:id="@+id/btn_tile_guide"
+                        style="@style/SecondaryButton"
+                        android:text="@string/tile_add" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/Card">
+                    <TextView style="@style/CardTitle" android:text="@string/privacy_title" />
+                    <TextView style="@style/Body" android:text="@string/privacy_body" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- ===================== SETTINGS ===================== -->
+        <ScrollView
+            android:id="@+id/page_settings"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="24dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout style="@style/Card">
+                    <TextView style="@style/CardTitle" android:text="@string/provider_label" />
+
+                    <!-- radio buttons are added in MainActivity -->
+                    <RadioGroup
+                        android:id="@+id/provider_group"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:orientation="vertical" />
+
+                    <TextView
+                        android:id="@+id/key_label"
+                        style="@style/Label"
+                        android:text="@string/key_label" />
+
+                    <EditText
+                        android:id="@+id/api_key"
+                        style="@style/Input"
+                        android:hint="@string/key_hint"
+                        android:inputType="textPassword"
+                        android:singleLine="true" />
+
+                    <TextView
+                        android:id="@+id/key_link"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/key_link"
+                        android:textColorLink="@color/chip_text_off"
+                        android:textSize="14sp" />
+
+                    <Button
+                        android:id="@+id/btn_save"
+                        style="@style/PrimaryButton"
+                        android:text="@string/save" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/Card">
+                    <TextView style="@style/CardTitle" android:text="@string/speed_title" />
+                    <TextView style="@style/Body" android:text="@string/speed_sub" />
+
+                    <RadioGroup
+                        android:id="@+id/speed_group"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:orientation="vertical">
+
+                        <RadioButton android:id="@+id/speed_fast" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="6dp" android:paddingBottom="6dp" android:text="@string/speed_fast" android:textColor="@color/text_primary" />
+                        <RadioButton android:id="@+id/speed_balanced" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="6dp" android:paddingBottom="6dp" android:text="@string/speed_balanced" android:textColor="@color/text_primary" />
+                        <RadioButton android:id="@+id/speed_best" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="6dp" android:paddingBottom="6dp" android:text="@string/speed_best" android:textColor="@color/text_primary" />
+                    </RadioGroup>
+                </LinearLayout>
+
+                <LinearLayout style="@style/Card">
+                    <TextView style="@style/CardTitle" android:text="@string/tile_title" />
+                    <TextView style="@style/Body" android:text="@string/tile_help" />
+                    <Button
+                        android:id="@+id/btn_tile"
+                        style="@style/SecondaryButton"
+                        android:text="@string/tile_add" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/Card">
+                    <TextView style="@style/CardTitle" android:text="@string/version_title" />
+                    <TextView
+                        android:id="@+id/version_text"
+                        style="@style/Body" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+</LinearLayout>

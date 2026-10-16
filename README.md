@@ -1,13 +1,13 @@
-# Pro Writer
+# ProChat
 
-Pro Writer turns your messages into a professional, mistake-free version on your Android phone.
+ProChat turns your messages into a professional, mistake-free version on your Android phone.
 It needs no special permissions: it only sees the text you select or copy, when you ask it to.
 
-**WhatsApp, Gmail and most apps:** type your message → select it → tap **Make Professional**
+**WhatsApp, Gmail and most apps:** type your message → select it → tap **ProChat**
 (may be under **⋮**) → **Replace**.
 
 **WeChat** (its menu doesn't show other apps' options): type your message → select it → **Copy** →
-pull down quick settings → tap the **Pro Writer** tile → the professional version is copied for
+pull down quick settings → tap the **ProChat** tile → the professional version is copied for
 you → long-press the message box → **Paste**. You can also long-press the app icon and choose
 **Polish copied text**.
 
@@ -54,12 +54,12 @@ It appears in `app/build/outputs/apk/debug/app-debug.apk`; copy it to your phone
 
 ## 3. Set it up on the phone
 
-1. Open **Pro Writer**.
+1. Open **ProChat**.
 2. Choose your AI provider, paste its API key and tap **Save**.
 3. (Optional) Tick **Always write the result in English** if you sometimes type in another
    language and want English output.
 4. Use the **Try it here** box to test it.
-5. Tap **Add tile to quick settings** (or add the **Pro Writer** tile yourself from the quick-settings edit screen).
+5. Tap **Add tile to quick settings** (or add the **ProChat** tile yourself from the quick-settings edit screen).
 
 ## Tips and troubleshooting
 

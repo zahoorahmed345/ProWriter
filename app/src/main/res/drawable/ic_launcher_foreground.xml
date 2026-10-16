@@ -1,18 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Speech bubble with a check mark -->
+<!-- ProChat: two chat bubbles, the front one with a sparkle -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M37,33 h34 a7,7 0 0 1 7,7 v22 a7,7 0 0 1 -7,7 h-18 l-10,9 v-9 h-6 a7,7 0 0 1 -7,-7 v-22 a7,7 0 0 1 7,-7 z" />
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M44,51 l6,6 l14,-14"
-        android:strokeColor="#2F4BD8"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:strokeWidth="5" />
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.88"
+        android:scaleY="0.88">
+        <!-- back bubble (the other person) -->
+        <path
+            android:fillAlpha="0.5"
+            android:fillColor="#FFFFFF"
+            android:pathData="M55,28 h18 a9,9 0 0 1 9,9 v8 Q82,52 76,53 v7 l-8,-6 h-13 a9,9 0 0 1 -9,-9 v-8 a9,9 0 0 1 9,-9 z" />
+        <!-- front bubble (you) -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M38,42 h24 a10,10 0 0 1 10,10 v10 a10,10 0 0 1 -10,10 h-18 l-10,8 v-9 Q28,70 28,62 v-10 a10,10 0 0 1 10,-10 z" />
+        <!-- sparkle -->
+        <path
+            android:fillColor="#FF5B3FE6"
+            android:pathData="M50,48 Q51.2,55.8 59,57 Q51.2,58.2 50,66 Q48.8,58.2 41,57 Q48.8,55.8 50,48 z" />
+        <path
+            android:fillColor="#FF5B3FE6"
+            android:pathData="M62,47 Q62.5,50.5 66,51 Q62.5,51.5 62,55 Q61.5,51.5 58,51 Q61.5,50.5 62,47 z" />
+    </group>
 </vector>

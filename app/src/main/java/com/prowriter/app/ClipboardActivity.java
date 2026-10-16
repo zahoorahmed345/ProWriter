@@ -17,7 +17,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * Opened from the Pro Writer quick-settings tile (or the app-icon shortcut).
+ * Opened from the ProChat quick-settings tile (or the app-icon shortcut).
  * Takes the text you just copied, shows the professional (or translated) version and copies
  * it back, so you only need to paste it. Needs no special permission: the app only sees your
  * clipboard at the moment you open this.
@@ -111,10 +111,11 @@ public class ClipboardActivity extends Activity {
         showLoading();
         final Rewriter.Provider provider = Prefs.getProvider(this);
         final String key = Prefs.getApiKey(this, provider);
+        final Rewriter.Speed speed = Prefs.getSpeed(this);
 
         new Thread(() -> {
             try {
-                String rewritten = Rewriter.rewrite(provider, key, original, t,
+                String rewritten = Rewriter.rewrite(provider, key, original, t, speed,
                         soFar -> runOnUiThread(() -> {
                             if (id == requestId) showPartial(soFar);
                         }));

@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="brand">#2F4BD8</color>
-    <color name="brand_dark">#1E33A6</color>
-    <color name="icon_bg">#2F4BD8</color>
-    <color name="chip_text_off">#2F4BD8</color>
+    <!-- Brand -->
+    <color name="brand">#3D4FE0</color>
+    <color name="brand_dark">#2A37B8</color>
+    <color name="brand_end">#8E44FF</color>
+    <color name="icon_bg">#3D5AFE</color>
+    <color name="chip_text_off">#3D4FE0</color>
+
+    <!-- Surfaces and text (light) -->
+    <color name="screen_bg">#F3F4F9</color>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="card_stroke">#E3E5EF</color>
+    <color name="input_bg">#F6F7FB</color>
+    <color name="text_primary">#1B1C24</color>
+    <color name="text_secondary">#626475</color>
+    <color name="brand_soft">#EBEEFF</color>
 </resources>

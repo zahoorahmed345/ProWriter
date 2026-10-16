@@ -1,67 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Pro Writer</string>
-    <!-- This is the label shown in the text-selection menu of every app -->
-    <string name="process_label">Make Professional</string>
-    <string name="process_label_reply">Professional Reply</string>
-    <string name="process_label_english">Professional English</string>
-    <string name="process_label_chinese">Professional 中文</string>
+    <string name="app_name">ProChat</string>
+    <string name="tagline">Professional messages in every chat</string>
+
+    <!-- Labels shown in the text-selection menu of every app -->
+    <string name="process_label">ProChat</string>
+    <string name="process_label_reply">ProChat Reply</string>
+    <string name="process_label_english">ProChat ENG</string>
+    <string name="process_label_chinese">ProChat 中文</string>
 
     <!-- The four modes -->
-    <string name="mode_same">Professional</string>
+    <string name="mode_same">Pro</string>
     <string name="mode_reply">Reply</string>
-    <string name="mode_english">English</string>
+    <string name="mode_english">ENG</string>
     <string name="mode_chinese">中文</string>
 
-    <string name="how_title">How to use</string>
+    <!-- Tabs -->
+    <string name="tab_home">Home</string>
+    <string name="tab_guide">Guide</string>
+    <string name="tab_settings">Settings</string>
+
+    <!-- Home -->
+    <string name="setup_banner">Add your API key in Settings to get started.</string>
+    <string name="setup_button">Open Settings</string>
+    <string name="try_title">Try it</string>
+    <string name="try_sub">Type any message, choose a mode and tap Generate.</string>
+    <string name="try_hint">e.g. \"send me file\" or \"aye nii aj khany pe\"</string>
+    <string name="try_button">Generate</string>
+    <string name="result_label">Result</string>
+    <string name="type_something">Type a message first</string>
+    <string name="tip_title">Use it in your chats</string>
+    <string name="tip_body">ProChat works inside WeChat, WhatsApp, Gmail and other apps. See the Guide tab for the quick steps.</string>
+    <string name="tip_button">Open Guide</string>
+
+    <!-- Guide -->
+    <string name="about_title">What is ProChat?</string>
+    <string name="about_body">ProChat helps you write polished, polite and professional messages in any chat app: WeChat, WhatsApp, Gmail, Messages and more.\n\nWrite the way you normally do, even quickly in Roman Urdu with spelling mistakes, and ProChat turns it into a message you\'d be proud to send. It can also write replies for you and translate into English or Chinese.</string>
+    <string name="modes_title">The four modes</string>
+    <string name="mode_same_desc">Your message, polished and professional, in the same language.</string>
+    <string name="mode_reply_desc">A professional reply to a message you received.</string>
+    <string name="mode_english_desc">Your message, polished and translated into English.</string>
+    <string name="mode_chinese_desc">Your message, polished and translated into Chinese, with pinyin to help you read it. Only the Chinese characters are copied.</string>
+    <string name="apps_title">WhatsApp, Gmail and most apps</string>
+    <string name="apps_1">Type your message. For a reply, long-press the message you received.</string>
+    <string name="apps_2">Select the text.</string>
+    <string name="apps_3">In the menu, tap ProChat, ProChat Reply, ProChat ENG or ProChat 中文. Tap ⋮ if you don\'t see them.</string>
+    <string name="apps_4">Tap Replace (or Copy for a reply) and send.</string>
+    <string name="wechat_title">WeChat</string>
+    <string name="wechat_1">Select your message (or the message you received) and tap Copy.</string>
+    <string name="wechat_2">Swipe down from the top of the screen and tap the ProChat tile.</string>
+    <string name="wechat_3">Choose a mode. The result is copied for you automatically.</string>
+    <string name="wechat_4">Long-press the message box, tap Paste and send.</string>
+    <string name="wechat_note">No tile yet? Tap the button below. You can also long-press the ProChat app icon and choose \"Polish copied text\".</string>
+    <string name="privacy_title">Privacy</string>
+    <string name="privacy_body">ProChat needs no special permissions. It only sees text you select or copy, at the moment you use it, and sends it only to the AI provider you chose in Settings. Your API key is stored only on this phone.</string>
+
+    <!-- Settings -->
     <string name="provider_label">AI provider</string>
-    <string name="how_steps">1. Choose an AI provider, paste its API key below and tap Save.
-
-<b>Four modes</b> (switch any time with the buttons in the pop-up):
-• Professional: your message, polished, same language
-• Reply: a polite reply to a message someone sent you
-• English: your message, polished and translated to English
-• 中文: your message, polished and translated to Chinese
-
-<b>WhatsApp, Gmail and most apps:</b>
-Select the text → tap \"Make Professional\", \"Professional Reply\", \"Professional English\" or \"Professional 中文\" (may be under ⋮).
-
-<b>WeChat:</b>
-Select the text → Copy → swipe down quick settings → tap \"Pro Writer\" → choose a mode → long-press the message box → Paste.
-
-For Reply: copy or select the message you received, not your own.</string>
-
     <string name="key_label">API key</string>
     <string name="key_hint">Paste your key</string>
     <string name="key_link"></string>
-    <string name="save">Save</string>
+    <string name="save">Save key</string>
     <string name="key_saved">Key saved</string>
     <string name="key_cleared">Key removed</string>
-
-    <!-- WeChat shortcut (quick-settings tile) -->
+    <string name="speed_title">Speed</string>
+    <string name="speed_sub">For Google Gemini. Faster settings answer sooner; Best writes the finest messages.</string>
+    <string name="speed_fast">Fast: quickest answers</string>
+    <string name="speed_balanced">Balanced: quick and high quality (recommended)</string>
+    <string name="speed_best">Best: finest writing, a little slower</string>
     <string name="tile_title">WeChat shortcut</string>
-    <string name="tile_help">Add the \"Pro Writer\" tile to your quick settings (the panel you pull down from the top of the screen). In WeChat: select your message → Copy → tap the tile → the professional version is copied for you → long-press the message box → Paste.\n\nYou can also long-press the Pro Writer app icon and choose \"Polish copied text\".</string>
-    <string name="tile_add">Add tile to quick settings</string>
-    <string name="tile_manual">Pull down quick settings, tap the pencil (edit) icon, and drag \"Pro Writer\" into your tiles.</string>
-    <string name="tile_added">Tile added. Pull down quick settings to find \"Pro Writer\".</string>
-    <string name="tile_already">The Pro Writer tile is already in your quick settings.</string>
-    <string name="tile_label">Pro Writer</string>
+    <string name="tile_help">Adds the ProChat tile to your quick-settings panel (swipe down from the top of the screen).</string>
+    <string name="tile_add">Add ProChat tile</string>
+    <string name="tile_manual">Swipe down quick settings, tap the pencil (edit) icon, and drag \"ProChat\" into your tiles.</string>
+    <string name="tile_added">Tile added. Swipe down quick settings to find \"ProChat\".</string>
+    <string name="tile_already">The ProChat tile is already in your quick settings.</string>
+    <string name="tile_label">ProChat</string>
+    <string name="version_title">About</string>
+    <string name="version_body">ProChat %1$s\nProfessional messages for WeChat, WhatsApp and every chat app.</string>
+
+    <!-- Shortcut and pop-ups -->
     <string name="shortcut_short">Polish copied text</string>
     <string name="shortcut_long">Make copied text professional</string>
     <string name="clip_reading">Reading the text you copied…</string>
-    <string name="clip_empty">Nothing copied yet. Select your message, tap Copy, then tap the Pro Writer tile again.</string>
+    <string name="clip_empty">Nothing copied yet. Select the text, tap Copy, then tap the ProChat tile again.</string>
     <string name="clip_copied">✓ Copied. Long-press the message box and tap Paste.</string>
     <string name="copy_edited">Copy</string>
     <string name="done">Done</string>
     <string name="close">Close</string>
 
-    <string name="try_title">Try it here</string>
-    <string name="try_hint">Type a message, e.g. \"hi sir i cant come tomorow\" or \"aye nii aj khany pe\"</string>
-    <string name="try_button">Make Professional</string>
-    <string name="type_something">Type a message first</string>
-
-    <string name="dialog_title">Professional version</string>
-    <string name="working">Polishing your message…</string>
+    <string name="dialog_title">ProChat</string>
+    <string name="working">Writing your message…</string>
     <string name="writing">Writing…</string>
     <string name="no_text">No text selected</string>
     <string name="cancel">Cancel</string>
@@ -70,5 +98,4 @@ For Reply: copy or select the message you received, not your own.</string>
     <string name="retry">Try again</string>
     <string name="open_settings">Open settings</string>
     <string name="copied">Copied</string>
-
 </resources>

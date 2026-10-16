@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="chip_text_off">#8FA2FF</color>
+    <color name="chip_text_off">#9EAAFF</color>
+
+    <!-- Surfaces and text (dark) -->
+    <color name="screen_bg">#121319</color>
+    <color name="card_bg">#1C1D25</color>
+    <color name="card_stroke">#2C2E3A</color>
+    <color name="input_bg">#24252F</color>
+    <color name="text_primary">#ECEDF3</color>
+    <color name="text_secondary">#A5A7B8</color>
+    <color name="brand_soft">#272B4D</color>
 </resources>
