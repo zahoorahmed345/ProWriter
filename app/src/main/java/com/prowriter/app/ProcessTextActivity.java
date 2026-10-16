@@ -82,6 +82,7 @@ public class ProcessTextActivity extends Activity {
         ComponentName cn = getIntent().getComponent();
         if (cn == null) cn = getComponentName();
         String name = cn == null ? "" : cn.getClassName();
+        if (name.endsWith("Reply")) return Rewriter.Target.REPLY;
         if (name.endsWith("English")) return Rewriter.Target.ENGLISH;
         if (name.endsWith("Chinese")) return Rewriter.Target.CHINESE;
         return Rewriter.Target.SAME;
@@ -158,7 +159,8 @@ public class ProcessTextActivity extends Activity {
         showPinyin(parts[1]);
         copyBtn.setVisibility(View.VISIBLE);
         // Some apps (e.g. a web page) only let you read text, so "Replace" is hidden there.
-        replaceBtn.setVisibility(readOnly ? View.GONE : View.VISIBLE);
+        // A reply goes in the chat box, not in place of the message you received.
+        replaceBtn.setVisibility(readOnly || target == Rewriter.Target.REPLY ? View.GONE : View.VISIBLE);
         retryBtn.setVisibility(View.GONE);
     }
 

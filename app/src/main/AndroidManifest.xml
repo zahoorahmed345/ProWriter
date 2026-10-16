@@ -42,6 +42,18 @@
 
         <!-- Extra selection-menu entries: "Professional English" and "Professional 中文" -->
         <activity-alias
+            android:name=".MakeProReply"
+            android:exported="true"
+            android:label="@string/process_label_reply"
+            android:targetActivity=".ProcessTextActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
             android:name=".MakeProEnglish"
             android:exported="true"
             android:label="@string/process_label_english"

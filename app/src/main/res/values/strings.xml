@@ -3,11 +3,13 @@
     <string name="app_name">Pro Writer</string>
     <!-- This is the label shown in the text-selection menu of every app -->
     <string name="process_label">Make Professional</string>
+    <string name="process_label_reply">Professional Reply</string>
     <string name="process_label_english">Professional English</string>
     <string name="process_label_chinese">Professional 中文</string>
 
-    <!-- The three modes -->
+    <!-- The four modes -->
     <string name="mode_same">Professional</string>
+    <string name="mode_reply">Reply</string>
     <string name="mode_english">English</string>
     <string name="mode_chinese">中文</string>
 
@@ -15,16 +17,19 @@
     <string name="provider_label">AI provider</string>
     <string name="how_steps">1. Choose an AI provider, paste its API key below and tap Save.
 
-<b>Three modes</b> (switch any time with the buttons in the pop-up):
-• Professional: polished, very polite, same language
-• English: polished and translated to English
-• 中文: polished and translated to Chinese
+<b>Four modes</b> (switch any time with the buttons in the pop-up):
+• Professional: your message, polished, same language
+• Reply: a polite reply to a message someone sent you
+• English: your message, polished and translated to English
+• 中文: your message, polished and translated to Chinese
 
 <b>WhatsApp, Gmail and most apps:</b>
-Type your message → select it → tap \"Make Professional\", \"Professional English\" or \"Professional 中文\" (may be under ⋮) → Replace.
+Select the text → tap \"Make Professional\", \"Professional Reply\", \"Professional English\" or \"Professional 中文\" (may be under ⋮).
 
 <b>WeChat:</b>
-Type your message → select it → Copy → swipe down quick settings → tap \"Pro Writer\" → long-press the message box → Paste.</string>
+Select the text → Copy → swipe down quick settings → tap \"Pro Writer\" → choose a mode → long-press the message box → Paste.
+
+For Reply: copy or select the message you received, not your own.</string>
 
     <string name="key_label">API key</string>
     <string name="key_hint">Paste your key</string>
