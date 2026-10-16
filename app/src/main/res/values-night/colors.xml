@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="chip_text_off">#9EAAFF</color>
+    <color name="chip_text_off">#9DB4E8</color>
+    <!-- Brighter navy so buttons stand out on dark cards -->
+    <color name="action">#3A5FA8</color>
+    <color name="action_end">#4F78C8</color>
 
     <!-- Surfaces and text (dark) -->
-    <color name="screen_bg">#121319</color>
-    <color name="card_bg">#1C1D25</color>
-    <color name="card_stroke">#2C2E3A</color>
-    <color name="input_bg">#24252F</color>
-    <color name="text_primary">#ECEDF3</color>
-    <color name="text_secondary">#A5A7B8</color>
-    <color name="brand_soft">#272B4D</color>
+    <color name="screen_bg">#0D1322</color>
+    <color name="card_bg">#162036</color>
+    <color name="card_stroke">#25324F</color>
+    <color name="input_bg">#1C2740</color>
+    <color name="text_primary">#ECEFF6</color>
+    <color name="text_secondary">#A3ACC2</color>
+    <color name="brand_soft">#22304F</color>
 </resources>

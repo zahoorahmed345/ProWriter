@@ -4,13 +4,13 @@
         <selector>
             <item android:state_enabled="false">
                 <shape android:shape="rectangle">
-                    <solid android:color="#993D4FE0" />
+                    <solid android:color="#991B2A4E" />
                     <corners android:radius="24dp" />
                 </shape>
             </item>
             <item>
                 <shape android:shape="rectangle">
-                    <gradient android:angle="0" android:endColor="@color/brand_end" android:startColor="@color/brand" />
+                    <gradient android:angle="0" android:endColor="@color/action_end" android:startColor="@color/action" />
                     <corners android:radius="24dp" />
                 </shape>
             </item>
