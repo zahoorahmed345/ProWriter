@@ -13,6 +13,8 @@ final class ModeChips {
     private final TextView[] chips;
     private final int offTextColor;
     private Rewriter.Target current;
+    private final java.util.EnumSet<Rewriter.Target> disabled =
+            java.util.EnumSet.noneOf(Rewriter.Target.class);
 
     ModeChips(View row, Rewriter.Target initial, Listener listener) {
         chips = new TextView[] {
@@ -26,7 +28,7 @@ final class ModeChips {
         for (int i = 0; i < chips.length; i++) {
             final Rewriter.Target t = targets[i];
             chips[i].setOnClickListener(v -> {
-                if (t == current) return;
+                if (t == current || disabled.contains(t)) return;
                 select(t);
                 if (listener != null) listener.onModeChanged(t);
             });
@@ -42,6 +44,12 @@ final class ModeChips {
             chips[i].setBackgroundResource(on ? R.drawable.chip_on : R.drawable.chip_off);
             chips[i].setTextColor(on ? 0xFFFFFFFF : offTextColor);
         }
+    }
+
+    /** Greys out a mode that can't be used right now (e.g. Reply while using voice). */
+    void setEnabled(Rewriter.Target target, boolean enabled) {
+        if (enabled) disabled.remove(target); else disabled.add(target);
+        chips[target.ordinal()].setAlpha(enabled ? 1f : 0.35f);
     }
 
     Rewriter.Target get() {

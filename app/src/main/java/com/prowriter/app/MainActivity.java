@@ -1,13 +1,17 @@
 package com.prowriter.app;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.StatusBarManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
@@ -24,6 +28,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 
     private static final String STATE_TAB = "tab";
+    private static final int REQ_MIC = 8;
 
     private Rewriter.Provider provider;
 
@@ -44,6 +49,19 @@ public class MainActivity extends Activity {
     private Button tryBtn;
     private ModeChips modeChips;
     private String lastResultMessage = "";
+
+    private Button micBtn;
+    private VoiceRecorder recorder;
+    private final Handler ticker = new Handler(Looper.getMainLooper());
+    private final Runnable tick = new Runnable() {
+        @Override
+        public void run() {
+            if (recorder == null || !recorder.isRecording()) return;
+            long s = recorder.elapsedMs() / 1000;
+            micBtn.setText(getString(R.string.mic_stop, s / 60, s % 60));
+            ticker.postDelayed(this, 500);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,8 +136,10 @@ public class MainActivity extends Activity {
         });
 
         // ---- settings: tile and version
-        findViewById(R.id.btn_tile).setOnClickListener(v -> addTile());
-        findViewById(R.id.btn_tile_guide).setOnClickListener(v -> addTile());
+        findViewById(R.id.btn_tile).setOnClickListener(v -> addTile(false));
+        findViewById(R.id.btn_tile_guide).setOnClickListener(v -> addTile(false));
+        findViewById(R.id.btn_tile_voice).setOnClickListener(v -> addTile(true));
+        findViewById(R.id.btn_tile_voice_guide).setOnClickListener(v -> addTile(true));
         String version = "";
         try {
             version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
@@ -142,6 +162,16 @@ public class MainActivity extends Activity {
         modeChips = new ModeChips(findViewById(R.id.mode_chips), Prefs.getLastTarget(this),
                 t -> Prefs.setLastTarget(this, t));
         tryBtn.setOnClickListener(v -> tryIt());
+
+        recorder = new VoiceRecorder(this);
+        micBtn = findViewById(R.id.btn_mic_home);
+        micBtn.setOnClickListener(v -> {
+            if (recorder.isRecording()) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        });
         findViewById(R.id.btn_copy_result).setOnClickListener(v -> {
             ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             if (cm != null && !lastResultMessage.isEmpty()) {
@@ -178,16 +208,16 @@ public class MainActivity extends Activity {
         setupBanner.setVisibility(noKey ? View.VISIBLE : View.GONE);
     }
 
-    /** Asks Android to add the ProChat tile (Android 13+); older phones get instructions. */
-    private void addTile() {
+    /** Asks Android to add a ProChat tile (Android 13+); older phones get instructions. */
+    private void addTile(boolean voice) {
         if (Build.VERSION.SDK_INT >= 33) {
             StatusBarManager sbm = getSystemService(StatusBarManager.class);
             if (sbm != null) {
                 try {
                     sbm.requestAddTileService(
-                            new ComponentName(this, ProTileService.class),
-                            getString(R.string.tile_label),
-                            Icon.createWithResource(this, R.drawable.ic_tile),
+                            new ComponentName(this, voice ? ProVoiceTileService.class : ProTileService.class),
+                            getString(voice ? R.string.tile_voice_label : R.string.tile_label),
+                            Icon.createWithResource(this, voice ? R.drawable.ic_tile_voice : R.drawable.ic_tile),
                             getMainExecutor(),
                             result -> {
                                 int msg;
@@ -275,9 +305,109 @@ public class MainActivity extends Activity {
         if (isFinishing() || isDestroyed()) return;
         lastResultMessage = message == null ? "" : message;
         resultBox.setVisibility(lastResultMessage.isEmpty() ? View.GONE : View.VISIBLE);
+        findViewById(R.id.btn_copy_result).setVisibility(View.VISIBLE);
         tryResult.setText(lastResultMessage);
         tryPinyin.setVisibility(pinyin == null ? View.GONE : View.VISIBLE);
         tryPinyin.setText(pinyin == null ? "" : pinyin);
+    }
+
+    // ------------------------------------------------------------------ voice (Home tab)
+
+    private void startListening() {
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] {Manifest.permission.RECORD_AUDIO}, REQ_MIC);
+            return;
+        }
+        if (modeChips.get() == Rewriter.Target.REPLY) {
+            modeChips.select(Rewriter.Target.SAME);
+        }
+        hideKeyboard();
+        if (!recorder.start(() -> runOnUiThread(this::stopListening))) {
+            showMessage(getString(R.string.mic_unavailable));
+            return;
+        }
+        tryBtn.setEnabled(false);
+        showMessage(getString(R.string.mic_listening));
+        ticker.removeCallbacks(tick);
+        ticker.post(tick);
+    }
+
+    private void stopListening() {
+        ticker.removeCallbacks(tick);
+        byte[] audio = recorder.stop();
+        micBtn.setText(R.string.mic_start);
+        tryBtn.setEnabled(true);
+        if (audio == null) {
+            showMessage(getString(R.string.mic_too_short));
+            return;
+        }
+        final String key = Prefs.getApiKey(this, Rewriter.Provider.GEMINI);
+        final Rewriter.Target target = modeChips.get();
+        final Rewriter.Speed speed = Prefs.getSpeed(this);
+        tryBtn.setEnabled(false);
+        micBtn.setEnabled(false);
+        tryProgress.setVisibility(View.VISIBLE);
+        showMessage(getString(R.string.mic_working));
+
+        new Thread(() -> {
+            String raw = null;
+            String error = null;
+            try {
+                raw = Rewriter.rewriteVoice(key, audio, VoiceRecorder.MIME_TYPE, target, speed,
+                        soFar -> runOnUiThread(() -> {
+                            String[] parts = Rewriter.split(soFar);
+                            if (!parts[0].isEmpty()) showResult(parts[0], parts[1]);
+                        }));
+            } catch (Rewriter.RewriteException e) {
+                error = e.getMessage();
+            }
+            final String r = raw;
+            final String err = error;
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                tryBtn.setEnabled(true);
+                micBtn.setEnabled(true);
+                tryProgress.setVisibility(View.GONE);
+                if (r != null) {
+                    String[] parts = Rewriter.split(r);
+                    showResult(parts[0], parts[1]);
+                } else {
+                    showMessage("⚠ " + err);
+                }
+            });
+        }).start();
+    }
+
+    /** Shows a status or error line in the result box (nothing to copy). */
+    private void showMessage(String text) {
+        lastResultMessage = "";
+        resultBox.setVisibility(View.VISIBLE);
+        findViewById(R.id.btn_copy_result).setVisibility(View.GONE);
+        tryResult.setText(text);
+        tryPinyin.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode != REQ_MIC) return;
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startListening();
+        } else {
+            showMessage(getString(R.string.mic_denied));
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (recorder != null && recorder.isRecording()) {
+            ticker.removeCallbacks(tick);
+            recorder.cancel();
+            micBtn.setText(R.string.mic_start);
+            tryBtn.setEnabled(true);
+            showMessage(getString(R.string.mic_cancelled));
+        }
     }
 
     private void hideKeyboard() {

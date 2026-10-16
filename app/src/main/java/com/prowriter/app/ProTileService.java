@@ -31,12 +31,18 @@ public class ProTileService extends TileService {
         }
     }
 
+    /** The "ProChat Voice" tile overrides this to open the pop-up already listening. */
+    protected boolean voice() {
+        return false;
+    }
+
     @SuppressWarnings("deprecation")
     private void openPopup() {
         Intent intent = new Intent(this, ClipboardActivity.class)
+                .putExtra(ClipboardActivity.EXTRA_VOICE, voice())
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         if (Build.VERSION.SDK_INT >= 34) {
-            PendingIntent pi = PendingIntent.getActivity(this, 0, intent,
+            PendingIntent pi = PendingIntent.getActivity(this, voice() ? 1 : 0, intent,
                     PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
             startActivityAndCollapse(pi);
         } else {

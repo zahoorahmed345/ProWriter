@@ -1,9 +1,13 @@
 package com.prowriter.app;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,15 +21,20 @@ import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * Opened from the ProChat quick-settings tile (or the app-icon shortcut).
- * Takes the text you just copied, shows the professional (or translated) version and copies
- * it back, so you only need to paste it. Needs no special permission: the app only sees your
- * clipboard at the moment you open this.
+ * Opened from the ProChat quick-settings tiles (or the app-icon shortcuts).
+ * Takes the text you just copied, or a voice message you speak, shows the professional (or
+ * translated) version and copies it, so you only need to paste it. The app only sees your
+ * clipboard at the moment you open this, and only uses the microphone while you're speaking.
  */
 public class ClipboardActivity extends Activity {
 
+    /** Set by the "ProChat Voice" tile/shortcut: start listening straight away. */
+    static final String EXTRA_VOICE = "com.prowriter.app.VOICE";
+    private static final int REQ_MIC = 7;
+
     private boolean started;
-    private String original;
+    private String original;      // copied text, or null when using voice
+    private byte[] audio;         // voice recording, or null when using copied text
     private Rewriter.Target target;
     private final Map<Rewriter.Target, String> results = new EnumMap<>(Rewriter.Target.class);
     private int requestId;
@@ -37,6 +46,20 @@ public class ClipboardActivity extends Activity {
     private Button doneBtn;
     private Button copyBtn;
     private Button retryBtn;
+    private Button micBtn;
+    private ModeChips chips;
+
+    private VoiceRecorder recorder;
+    private final Handler ticker = new Handler(Looper.getMainLooper());
+    private final Runnable tick = new Runnable() {
+        @Override
+        public void run() {
+            if (recorder == null || !recorder.isRecording()) return;
+            long s = recorder.elapsedMs() / 1000;
+            micBtn.setText(getString(R.string.mic_stop, s / 60, s % 60));
+            ticker.postDelayed(this, 500);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,14 +75,17 @@ public class ClipboardActivity extends Activity {
         doneBtn = findViewById(R.id.btn_cancel);
         copyBtn = findViewById(R.id.btn_copy);
         retryBtn = findViewById(R.id.btn_retry);
+        micBtn = findViewById(R.id.btn_mic);
         findViewById(R.id.btn_replace).setVisibility(View.GONE);
+        recorder = new VoiceRecorder(this);
 
         // Opens in the mode you used last time.
         target = Prefs.getLastTarget(this);
-        new ModeChips(findViewById(R.id.mode_chips), target, t -> {
+        chips = new ModeChips(findViewById(R.id.mode_chips), target, t -> {
             target = t;
             Prefs.setLastTarget(this, t);
-            if (original != null) start();
+            if (recorder.isRecording()) return;
+            if (original != null || audio != null) start();
         });
 
         doneBtn.setOnClickListener(v -> finish());
@@ -69,6 +95,15 @@ public class ClipboardActivity extends Activity {
             finish();
         });
         retryBtn.setOnClickListener(v -> start());
+
+        micBtn.setVisibility(View.VISIBLE);
+        micBtn.setOnClickListener(v -> {
+            if (recorder.isRecording()) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        });
 
         status.setText(R.string.clip_reading);
         result.setVisibility(View.GONE);
@@ -83,6 +118,11 @@ public class ClipboardActivity extends Activity {
         super.onWindowFocusChanged(hasFocus);
         if (!hasFocus || started) return;
         started = true;
+
+        if (wantsVoice()) {
+            startListening();
+            return;
+        }
 
         CharSequence text = null;
         ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
@@ -100,6 +140,91 @@ public class ClipboardActivity extends Activity {
         start();
     }
 
+    // ------------------------------------------------------------------ voice
+
+    /** True when opened from the voice tile or shortcut (the shortcut may pass "true" as text). */
+    private boolean wantsVoice() {
+        Bundle extras = getIntent().getExtras();
+        Object v = extras == null ? null : extras.get(EXTRA_VOICE);
+        return Boolean.TRUE.equals(v) || "true".equals(v);
+    }
+
+    private void startListening() {
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] {Manifest.permission.RECORD_AUDIO}, REQ_MIC);
+            return;
+        }
+        ++requestId; // ignore any answer still on its way
+        original = null;
+        audio = null;
+        results.clear();
+
+        // Reply doesn't make sense for a message you speak yourself.
+        chips.setEnabled(Rewriter.Target.REPLY, false);
+        if (target == Rewriter.Target.REPLY) {
+            target = Rewriter.Target.SAME;
+            chips.select(target);
+        }
+
+        if (!recorder.start(() -> runOnUiThread(this::stopListening))) {
+            showError(getString(R.string.mic_unavailable), false);
+            return;
+        }
+        progress.setVisibility(View.GONE);
+        status.setText(R.string.mic_listening);
+        result.setVisibility(View.GONE);
+        pinyin.setVisibility(View.GONE);
+        copyBtn.setVisibility(View.GONE);
+        retryBtn.setVisibility(View.GONE);
+        doneBtn.setText(R.string.cancel);
+        ticker.removeCallbacks(tick);
+        ticker.post(tick);
+    }
+
+    private void stopListening() {
+        ticker.removeCallbacks(tick);
+        byte[] recorded = recorder.stop();
+        micBtn.setText(R.string.mic_again);
+        if (recorded == null) {
+            showError(getString(R.string.mic_too_short), false);
+            return;
+        }
+        audio = recorded;
+        start();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode != REQ_MIC) return;
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startListening();
+        } else {
+            showError(getString(R.string.mic_denied), false);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Never keep the microphone on when the pop-up isn't in front.
+        if (recorder.isRecording()) {
+            ticker.removeCallbacks(tick);
+            recorder.cancel();
+            micBtn.setText(R.string.mic_start);
+            showError(getString(R.string.mic_cancelled), false);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        ticker.removeCallbacks(tick);
+        recorder.cancel();
+        super.onDestroy();
+    }
+
+    // ------------------------------------------------------------------ rewriting
+
     private void start() {
         final int id = ++requestId;
         final Rewriter.Target t = target;
@@ -109,16 +234,22 @@ public class ClipboardActivity extends Activity {
             return;
         }
         showLoading();
-        final Rewriter.Provider provider = Prefs.getProvider(this);
-        final String key = Prefs.getApiKey(this, provider);
         final Rewriter.Speed speed = Prefs.getSpeed(this);
+        final byte[] voice = audio;
+        final String text = original;
+        final Rewriter.Provider provider = Prefs.getProvider(this);
+        final String key = voice != null
+                ? Prefs.getApiKey(this, Rewriter.Provider.GEMINI)
+                : Prefs.getApiKey(this, provider);
 
         new Thread(() -> {
             try {
-                String rewritten = Rewriter.rewrite(provider, key, original, t, speed,
-                        soFar -> runOnUiThread(() -> {
-                            if (id == requestId) showPartial(soFar);
-                        }));
+                Rewriter.Partial partial = soFar -> runOnUiThread(() -> {
+                    if (id == requestId) showPartial(soFar);
+                });
+                String rewritten = voice != null
+                        ? Rewriter.rewriteVoice(key, voice, VoiceRecorder.MIME_TYPE, t, speed, partial)
+                        : Rewriter.rewrite(provider, key, text, t, speed, partial);
                 runOnUiThread(() -> {
                     results.put(t, rewritten);
                     if (id == requestId) showResult(rewritten);
@@ -137,7 +268,7 @@ public class ClipboardActivity extends Activity {
 
     private void showLoading() {
         progress.setVisibility(View.VISIBLE);
-        status.setText(R.string.working);
+        status.setText(audio != null ? R.string.mic_working : R.string.working);
         result.setVisibility(View.GONE);
         pinyin.setVisibility(View.GONE);
         copyBtn.setVisibility(View.GONE);

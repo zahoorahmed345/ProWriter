@@ -139,6 +139,12 @@
                             style="@style/PrimaryButton"
                             android:text="@string/try_button" />
 
+                        <Button
+                            android:id="@+id/btn_mic_home"
+                            style="@style/SecondaryButton"
+                            android:layout_marginStart="10dp"
+                            android:text="@string/mic_start" />
+
                         <ProgressBar
                             android:id="@+id/try_progress"
                             style="?android:attr/progressBarStyleSmall"
@@ -384,6 +390,39 @@
                 </LinearLayout>
 
                 <LinearLayout style="@style/Card">
+                    <TextView style="@style/CardTitle" android:text="@string/voice_title" />
+                    <TextView style="@style/Body" android:text="@string/voice_body" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:orientation="horizontal">
+                        <TextView style="@style/StepNumber" android:text="1" />
+                        <TextView style="@style/StepText" android:text="@string/voice_1" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
+                        <TextView style="@style/StepNumber" android:text="2" />
+                        <TextView style="@style/StepText" android:text="@string/voice_2" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
+                        <TextView style="@style/StepNumber" android:text="3" />
+                        <TextView style="@style/StepText" android:text="@string/voice_3" />
+                    </LinearLayout>
+                    <Button
+                        android:id="@+id/btn_tile_voice_guide"
+                        style="@style/SecondaryButton"
+                        android:text="@string/tile_voice_add" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/Card">
                     <TextView style="@style/CardTitle" android:text="@string/privacy_title" />
                     <TextView style="@style/Body" android:text="@string/privacy_body" />
                 </LinearLayout>
@@ -468,6 +507,11 @@
                         android:id="@+id/btn_tile"
                         style="@style/SecondaryButton"
                         android:text="@string/tile_add" />
+                    <Button
+                        android:id="@+id/btn_tile_voice"
+                        style="@style/SecondaryButton"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/tile_voice_add" />
                 </LinearLayout>
 
                 <LinearLayout style="@style/Card">

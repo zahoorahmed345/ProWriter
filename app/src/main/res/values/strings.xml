@@ -53,7 +53,7 @@
     <string name="wechat_4">Long-press the message box, tap Paste and send.</string>
     <string name="wechat_note">No tile yet? Tap the button below. You can also long-press the ProChat app icon and choose \"Polish copied text\".</string>
     <string name="privacy_title">Privacy</string>
-    <string name="privacy_body">ProChat needs no special permissions. It only sees text you select or copy, at the moment you use it, and sends it only to the AI provider you chose in Settings. Your API key is stored only on this phone.</string>
+    <string name="privacy_body">ProChat needs no special permissions. It only sees text you select or copy, at the moment you use it, and sends it only to the AI provider you chose in Settings. The microphone is used only while you\'re speaking a voice message, and the recording is deleted right after it\'s sent to Google Gemini. Your API key is stored only on this phone.</string>
 
     <!-- Settings -->
     <string name="provider_label">AI provider</string>
@@ -82,11 +82,31 @@
     <string name="shortcut_short">Polish copied text</string>
     <string name="shortcut_long">Make copied text professional</string>
     <string name="clip_reading">Reading the text you copied…</string>
-    <string name="clip_empty">Nothing copied yet. Select the text, tap Copy, then tap the ProChat tile again.</string>
+    <string name="clip_empty">Nothing copied yet. Copy some text and tap the ProChat tile again, or tap 🎤 Speak.</string>
     <string name="clip_copied">✓ Copied. Long-press the message box and tap Paste.</string>
     <string name="copy_edited">Copy</string>
     <string name="done">Done</string>
     <string name="close">Close</string>
+
+    <!-- Voice -->
+    <string name="mic_start">🎤 Speak</string>
+    <string name="mic_again">🎤 Speak again</string>
+    <string name="mic_stop">■ Stop  %1$d:%2$02d</string>
+    <string name="mic_listening">Listening… speak your message, then tap Stop.</string>
+    <string name="mic_working">Writing what you said…</string>
+    <string name="mic_too_short">I didn\'t catch that. Tap 🎤 Speak and talk a little longer.</string>
+    <string name="mic_unavailable">The microphone is busy or unavailable. Please try again.</string>
+    <string name="mic_denied">ProChat needs the microphone to hear your voice. Allow it when asked, or in Settings → Apps → ProChat → Permissions.</string>
+    <string name="mic_cancelled">Recording stopped because you left ProChat. Tap 🎤 Speak to try again.</string>
+    <string name="tile_voice_label">ProChat Voice</string>
+    <string name="tile_voice_add">Add ProChat Voice tile</string>
+    <string name="shortcut_voice_short">Speak a message</string>
+    <string name="shortcut_voice_long">Speak a message to ProChat</string>
+    <string name="voice_title">Voice</string>
+    <string name="voice_body">Speak instead of typing, in Urdu, English, Chinese or a mix. ProChat listens and writes it in the mode you choose (Pro, ENG or 中文), then copies it for you. Spoken Urdu is written in Roman Urdu. Voice uses Google Gemini.</string>
+    <string name="voice_1">Swipe down and tap the ProChat Voice tile (or tap 🎤 Speak in any ProChat pop-up).</string>
+    <string name="voice_2">Speak your message, then tap Stop.</string>
+    <string name="voice_3">The result is copied. Long-press the message box, tap Paste and send.</string>
 
     <string name="dialog_title">ProChat</string>
     <string name="working">Writing your message…</string>

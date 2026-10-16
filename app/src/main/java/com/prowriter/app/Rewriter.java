@@ -117,14 +117,7 @@ final class Rewriter {
             String result;
             switch (provider) {
                 case GEMINI:
-                    Speed sp = speed == null ? Speed.BALANCED : speed;
-                    try {
-                        result = callGemini(sp.model, sp.thinking, key, system, userText, partial);
-                    } catch (RewriteException e) {
-                        if (!e.canFallBack || sp.model.equals(GEMINI_FALLBACK_MODEL)) throw e;
-                        // Limit reached or model unavailable: use the lighter free model instead.
-                        result = callGemini(GEMINI_FALLBACK_MODEL, null, key, system, userText, partial);
-                    }
+                    result = callGeminiWithFallback(speed, key, system, textParts(userText), partial);
                     break;
                 case DEEPSEEK:
                     result = callDeepSeek(provider, key, system, userText);
@@ -155,15 +148,84 @@ final class Rewriter {
     /** Lighter free Gemini model, used when the main one is busy or over its free limit. */
     static final String GEMINI_FALLBACK_MODEL = "gemini-3.5-flash-lite";
 
+    private static String callGeminiWithFallback(Speed speed, String key, String system,
+                                                 JSONArray parts, Partial partial) throws Exception {
+        Speed sp = speed == null ? Speed.BALANCED : speed;
+        try {
+            return callGemini(sp.model, sp.thinking, key, system, parts, partial);
+        } catch (RewriteException e) {
+            if (!e.canFallBack || sp.model.equals(GEMINI_FALLBACK_MODEL)) throw e;
+            // Limit reached or model unavailable: use the lighter free model instead.
+            return callGemini(GEMINI_FALLBACK_MODEL, null, key, system, parts, partial);
+        }
+    }
+
+    /**
+     * Voice: sends the recording to Gemini, which listens and writes the result in the chosen
+     * mode in one step. Always uses Google Gemini (Claude and DeepSeek can't listen to audio).
+     */
+    static String rewriteVoice(String geminiKey, byte[] audio, String mimeType, Target target,
+                               Speed speed, Partial partial) throws RewriteException {
+        if (geminiKey == null || geminiKey.trim().isEmpty()) {
+            throw new RewriteException("Voice uses Google Gemini. Open ProChat → Settings, choose "
+                    + "Google Gemini, paste its key and tap Save.", true);
+        }
+        if (target == Target.REPLY) {
+            throw new RewriteException("Reply works with copied messages. For voice, choose Pro, "
+                    + "ENG or 中文.");
+        }
+        String instruction = "The <message> is in the attached audio recording: the writer is "
+                + "speaking it instead of typing. Listen carefully and work out exactly what they "
+                + "say; it may be Urdu, English, Chinese or a mix. Ignore filler words, pauses, "
+                + "repetitions and background noise. Then treat what they said as the <message>.";
+        if (target == Target.ENGLISH) {
+            instruction += "\n\nWrite the result in English.";
+        } else if (target == Target.CHINESE) {
+            instruction += "\n\nWrite the result in Simplified Chinese (简体中文).";
+        } else {
+            instruction += "\n\nWrite the result in the language they spoke. If they spoke Urdu "
+                    + "or Hindi, write it in Roman Urdu with English letters (never Urdu or Hindi "
+                    + "script). If they mixed English into Urdu, keep it natural Roman Urdu.";
+        }
+        try {
+            JSONArray parts = new JSONArray()
+                    .put(new JSONObject().put("inlineData", new JSONObject()
+                            .put("mimeType", mimeType)
+                            .put("data", android.util.Base64.encodeToString(audio,
+                                    android.util.Base64.NO_WRAP))))
+                    .put(new JSONObject().put("text", instruction));
+            String result = callGeminiWithFallback(speed, geminiKey.trim(), systemPrompt(target),
+                    parts, partial);
+            result = result == null ? "" : result.trim();
+            if (split(result)[0].isEmpty()) {
+                throw new RewriteException("I couldn't hear a message. Please try again and speak "
+                        + "a little closer to the phone.");
+            }
+            return result;
+        } catch (RewriteException e) {
+            throw e;
+        } catch (UnknownHostException e) {
+            throw new RewriteException("No internet connection. Check your data or Wi-Fi and try again.");
+        } catch (SocketTimeoutException e) {
+            throw new RewriteException("The request took too long. Please try again.");
+        } catch (Exception e) {
+            throw new RewriteException("Something went wrong: " + e.getMessage());
+        }
+    }
+
+    private static JSONArray textParts(String text) throws Exception {
+        return new JSONArray().put(new JSONObject().put("text", text));
+    }
+
     private static String callGemini(String model, String thinkingLevel, String key, String system,
-                                     String userText, Partial partial) throws Exception {
+                                     JSONArray userParts, Partial partial) throws Exception {
         Provider p = Provider.GEMINI;
         JSONObject body = new JSONObject();
         body.put("systemInstruction", new JSONObject()
                 .put("parts", new JSONArray().put(new JSONObject().put("text", system))));
         body.put("contents", new JSONArray().put(new JSONObject()
                 .put("role", "user")
-                .put("parts", new JSONArray().put(new JSONObject().put("text", userText)))));
+                .put("parts", userParts)));
         JSONObject config = new JSONObject().put("maxOutputTokens", 2048);
         if (thinkingLevel != null) {
             config.put("thinkingConfig", new JSONObject().put("thinkingLevel", thinkingLevel));

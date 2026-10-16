@@ -41,6 +41,15 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
 
+    <!-- Voice: tap to speak, tap again to stop (only in the quick-settings pop-up) -->
+    <Button
+        android:id="@+id/btn_mic"
+        style="@style/PrimaryButton"
+        android:layout_marginTop="10dp"
+        android:minHeight="40dp"
+        android:text="@string/mic_start"
+        android:visibility="gone" />
+
     <!-- Editable, so you can tweak the result before replacing -->
     <EditText
         android:id="@+id/result"
