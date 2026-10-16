@@ -71,7 +71,8 @@ final class Rewriter {
         SAME,     // professional, same language
         REPLY,    // a professional reply to a message someone sent you
         ENGLISH,  // professional + translated to English
-        CHINESE   // professional + translated to Simplified Chinese
+        CHINESE,  // professional + translated to Simplified Chinese
+        URDU      // professional + translated to Urdu (Urdu script)
     }
 
     /** Speed vs quality for Gemini: which model and how much thinking. */
@@ -109,6 +110,8 @@ final class Rewriter {
             userText += "\n\nWrite the result in English.";
         } else if (target == Target.CHINESE) {
             userText += "\n\nWrite the result in Simplified Chinese (简体中文).";
+        } else if (target == Target.URDU) {
+            userText += "\n\nWrite the result in Urdu, in Urdu script (اردو).";
         } else if (target == Target.REPLY) {
             userText = "Message I received:\n" + userText + "\n\nWrite my reply.";
         }
@@ -171,8 +174,8 @@ final class Rewriter {
                     + "Google Gemini, paste its key and tap Save.", true);
         }
         if (target == Target.REPLY) {
-            throw new RewriteException("Reply works with copied messages. For voice, choose Pro, "
-                    + "ENG or 中文.");
+            throw new RewriteException("Reply works with copied messages. For voice, choose Pro, ENG, "
+                    + "中文 or اردو.");
         }
         String instruction = "The <message> is in the attached audio recording: the writer is "
                 + "speaking it instead of typing. Listen carefully and work out exactly what they "
@@ -182,6 +185,8 @@ final class Rewriter {
             instruction += "\n\nWrite the result in English.";
         } else if (target == Target.CHINESE) {
             instruction += "\n\nWrite the result in Simplified Chinese (简体中文).";
+        } else if (target == Target.URDU) {
+            instruction += "\n\nWrite the result in Urdu, in Urdu script (اردو).";
         } else {
             instruction += "\n\nWrite the result in the language they spoke. If they spoke Urdu "
                     + "or Hindi, write it in Roman Urdu with English letters (never Urdu or Hindi "
@@ -456,13 +461,34 @@ final class Rewriter {
                         + "\"your welcome dr.reza\" -> \"不客气，Reza医生，这是我应该做的。\"\n"
                         + "\"kal milte hain\" -> \"我们明天见。\"\n"
                         + OUTPUT_RULES;
+            case URDU:
+                return "You are an expert editor and translator. Rewrite the <message> as a "
+                        + "professional message IN URDU, written in Urdu script (اردو), translating "
+                        + "it from whatever language it is in (Roman Urdu, English, Chinese...). "
+                        + "Write natural, polite, professional Urdu the way an educated native "
+                        + "speaker writes a respectful chat message: use آپ, and courteous words "
+                        + "such as براہِ کرم، مہربانی، شکریہ، معذرت. Not overly literary or heavy "
+                        + "with rare Persian/Arabic words, never word-for-word translation. Use "
+                        + "Urdu punctuation (۔ ، ؟). Keep English names, brand names and numbers "
+                        + "as they are.\n\n"
+                        + STYLE
+                        + "Examples:\n"
+                        + "\"kal nahi aa sakta\" -> \"معذرت، میں کل نہیں آ سکوں گا۔\"\n"
+                        + "\"send me file\" -> \"براہِ کرم جب وقت ملے تو فائل بھیج دیجیے، شکریہ۔\"\n"
+                        + "\"your welcome dr.reza\" -> \"کوئی بات نہیں، ڈاکٹر رضا، یہ میرے لیے خوشی "
+                        + "کی بات تھی۔\"\n"
+                        + "\"kesi ho\" -> \"آپ کیسی ہیں؟\"\n"
+                        + "\"ok i will check and tell you\" -> \"جی ضرور، میں دیکھ کر آپ کو جلد بتا "
+                        + "دوں گا۔\"\n"
+                        + OUTPUT_RULES;
             case SAME:
             default:
                 return "You are an expert editor. Rewrite the <message> as a professional "
                         + "message in the SAME language and script it was written in: English "
-                        + "stays English, Chinese stays Chinese, Roman Urdu stays Roman Urdu in "
-                        + "English letters (never Urdu or Hindi script), with clear spellings "
-                        + "(kaisi, nahi, khaane, aaj) and respectful forms (aap, ji, not tum).\n\n"
+                        + "stays English, Chinese stays Chinese, Urdu script stays Urdu script, "
+                        + "and Roman Urdu stays Roman Urdu in English letters (never switch it to "
+                        + "Urdu or Hindi script), with clear spellings (kaisi, nahi, khaane, aaj) "
+                        + "and respectful forms (aap, ji, not tum).\n\n"
                         + STYLE
                         + "Examples:\n"
                         + "\"your welcome dr.reza\" -> \"You're most welcome, Dr. Reza. It was my "

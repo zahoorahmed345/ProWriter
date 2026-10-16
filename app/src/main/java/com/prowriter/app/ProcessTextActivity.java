@@ -85,6 +85,7 @@ public class ProcessTextActivity extends Activity {
         if (name.endsWith("Reply")) return Rewriter.Target.REPLY;
         if (name.endsWith("English")) return Rewriter.Target.ENGLISH;
         if (name.endsWith("Chinese")) return Rewriter.Target.CHINESE;
+        if (name.endsWith("Urdu")) return Rewriter.Target.URDU;
         return Rewriter.Target.SAME;
     }
 
@@ -198,6 +199,7 @@ public class ProcessTextActivity extends Activity {
         ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (cm != null) {
             cm.setPrimaryClip(ClipData.newPlainText("Professional message", result.getText()));
+            Prefs.markClipUsed(this, result.getText().toString());
             Toast.makeText(this, R.string.copied, Toast.LENGTH_SHORT).show();
         }
         finish();

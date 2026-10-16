@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Professional | Reply | English | 中文 (scrolls sideways on narrow screens) -->
+<!-- Pro | Reply | ENG | 中文 | اردو (scrolls sideways on narrow screens) -->
 <HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/mode_chips"
     android:layout_width="match_parent"
@@ -34,5 +34,11 @@
         style="@style/ModeChip"
         android:layout_marginStart="6dp"
         android:text="@string/mode_chinese" />
+
+    <TextView
+        android:id="@+id/chip_urdu"
+        style="@style/ModeChip"
+        android:layout_marginStart="6dp"
+        android:text="@string/mode_urdu" />
 </LinearLayout>
 </HorizontalScrollView>

@@ -70,6 +70,38 @@ final class Prefs {
         sp(c).edit().putString("speed", s.name()).apply();
     }
 
+    /**
+     * Remembers texts ProChat has already worked on, and results it copied, so opening the tile
+     * again doesn't redo old clipboard text. Only short fingerprints are stored, not the text.
+     */
+    static void markClipUsed(Context c, String text) {
+        if (text == null || text.trim().isEmpty()) return;
+        String fp = fingerprint(text);
+        String old = sp(c).getString("used_clips", "");
+        StringBuilder out = new StringBuilder(fp);
+        int kept = 0;
+        for (String f : old.split(",")) {
+            if (f.isEmpty() || f.equals(fp)) continue;
+            if (++kept > 20) break;
+            out.append(',').append(f);
+        }
+        sp(c).edit().putString("used_clips", out.toString()).apply();
+    }
+
+    static boolean isClipUsed(Context c, String text) {
+        if (text == null) return false;
+        String fp = fingerprint(text);
+        for (String f : sp(c).getString("used_clips", "").split(",")) {
+            if (f.equals(fp)) return true;
+        }
+        return false;
+    }
+
+    private static String fingerprint(String text) {
+        String t = text.trim();
+        return Integer.toHexString(t.hashCode()) + "-" + t.length();
+    }
+
     static boolean forceEnglish(Context c) {
         return sp(c).getBoolean(KEY_ENGLISH, false);
     }

@@ -3,7 +3,7 @@ package com.prowriter.app;
 import android.view.View;
 import android.widget.TextView;
 
-/** The buttons "Professional | Reply | English | 中文" used in the pop-ups and the app. */
+/** The buttons "Pro | Reply | ENG | 中文 | اردو" used in the pop-ups and the app. */
 final class ModeChips {
 
     interface Listener {
@@ -21,7 +21,8 @@ final class ModeChips {
                 row.findViewById(R.id.chip_same),
                 row.findViewById(R.id.chip_reply),
                 row.findViewById(R.id.chip_english),
-                row.findViewById(R.id.chip_chinese)
+                row.findViewById(R.id.chip_chinese),
+                row.findViewById(R.id.chip_urdu)
         };
         offTextColor = row.getContext().getColor(R.color.chip_text_off);
         Rewriter.Target[] targets = Rewriter.Target.values();

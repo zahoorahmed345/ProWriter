@@ -310,6 +310,25 @@
                     android:textColor="#FFFFFF" />
                 <TextView style="@style/StepText" android:text="@string/mode_chinese_desc" />
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView
+                    style="@style/ModeChip"
+                    android:layout_width="68dp"
+                    android:layout_marginEnd="12dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:background="@drawable/chip_on"
+                    android:gravity="center"
+                    android:clickable="false"
+                    android:text="@string/mode_urdu"
+                    android:textColor="#FFFFFF" />
+                <TextView style="@style/StepText" android:text="@string/mode_urdu_desc" />
+            </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout style="@style/Card">

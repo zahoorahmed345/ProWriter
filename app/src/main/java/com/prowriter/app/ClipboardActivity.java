@@ -136,8 +136,25 @@ public class ClipboardActivity extends Activity {
             showError(getString(R.string.clip_empty), false);
             return;
         }
+        if (Prefs.isClipUsed(this, text.toString())) {
+            // Old text (already done, or a result ProChat copied): wait for something new.
+            showNotNew(text.toString());
+            return;
+        }
         original = text.toString();
         start();
+    }
+
+    /** The clipboard holds text ProChat has already handled: offer voice, or use it anyway. */
+    private void showNotNew(String oldText) {
+        showError(getString(R.string.clip_not_new), true);
+        retryBtn.setText(R.string.clip_use_anyway);
+        retryBtn.setOnClickListener(v -> {
+            retryBtn.setText(R.string.retry);
+            retryBtn.setOnClickListener(x -> start());
+            original = oldText;
+            start();
+        });
     }
 
     // ------------------------------------------------------------------ voice
@@ -155,6 +172,8 @@ public class ClipboardActivity extends Activity {
             return;
         }
         ++requestId; // ignore any answer still on its way
+        retryBtn.setText(R.string.retry);
+        retryBtn.setOnClickListener(v -> start());
         original = null;
         audio = null;
         results.clear();
@@ -242,6 +261,8 @@ public class ClipboardActivity extends Activity {
                 ? Prefs.getApiKey(this, Rewriter.Provider.GEMINI)
                 : Prefs.getApiKey(this, provider);
 
+        if (text != null) Prefs.markClipUsed(this, text);
+
         new Thread(() -> {
             try {
                 Rewriter.Partial partial = soFar -> runOnUiThread(() -> {
@@ -321,6 +342,7 @@ public class ClipboardActivity extends Activity {
     private void copyToClipboard(String text) {
         ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (cm != null) cm.setPrimaryClip(ClipData.newPlainText("Professional message", text));
+        Prefs.markClipUsed(this, text); // don't redo our own result next time
     }
 
     private void makeDialogWide() {

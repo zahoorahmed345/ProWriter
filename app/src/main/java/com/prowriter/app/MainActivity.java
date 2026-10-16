@@ -176,6 +176,7 @@ public class MainActivity extends Activity {
             ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             if (cm != null && !lastResultMessage.isEmpty()) {
                 cm.setPrimaryClip(ClipData.newPlainText("ProChat", lastResultMessage));
+                Prefs.markClipUsed(this, lastResultMessage);
                 Toast.makeText(this, R.string.copied, Toast.LENGTH_SHORT).show();
             }
         });
