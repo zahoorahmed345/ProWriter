@@ -193,9 +193,9 @@ final class Rewriter {
         } else if (target == Target.URDU) {
             instruction += "\n\nWrite the result in Roman Urdu (Urdu in English letters).";
         } else {
-            instruction += "\n\nWrite the result in the language they spoke. If they spoke Urdu "
-                    + "or Hindi, write it in Roman Urdu with English letters (never Urdu or Hindi "
-                    + "script). If they mixed English into Urdu, keep it natural Roman Urdu.";
+            instruction += "\n\nWrite the result in the language they mainly spoke. If they "
+                    + "spoke Urdu or Hindi (even with some English words mixed in), the WHOLE result "
+                    + "must be Roman Urdu in English letters: no English sentences.";
         }
         try {
             JSONArray parts = new JSONArray()
@@ -393,6 +393,11 @@ final class Rewriter {
             + "What \"professional\" means here: the way a courteous, confident professional "
             + "texts a colleague, client or customer. Correct, clear and warm. Polite without "
             + "being stiff, flowery or servile. Specifically:\n"
+            + "- Keep the whole result in ONE language. Never switch language halfway: if the "
+            + "result is Roman Urdu, every sentence is Roman Urdu. Everyday English words that "
+            + "Urdu speakers normally use (file, check, meeting, order, office, sir) may stay as "
+            + "words inside the Urdu sentence, but never write English sentences or phrases like "
+            + "\"Could you please...\" in a Roman Urdu message.\n"
             + "- Perfect grammar, spelling, punctuation and capitalization.\n"
             + "- Courteous phrasing: \"Could you please...\", \"I'd appreciate it if...\", "
             + "\"I'm afraid...\", \"Thank you for...\", proper titles and names (\"Dr. Reza\").\n"
@@ -415,7 +420,10 @@ final class Rewriter {
             + "- Output only the final text: no quotes, labels, notes or alternatives.\n"
             + "- If, and only if, the final text is in Chinese: after it, add a new line "
             + "containing exactly " + PINYIN_MARK + " and then the pinyin of the whole text with "
-            + "tone marks.";
+            + "tone marks.\n"
+            + "- If, and only if, the final text is in Roman Urdu: after it, add a new line "
+            + "containing exactly " + URDU_MARK + " and then the same text written in Urdu script "
+            + "(اردو) with Urdu punctuation (۔ ، ؟).";
 
     private static String systemPrompt(Target target) {
         switch (target) {
@@ -498,9 +506,6 @@ final class Rewriter {
                         + "khushi ki baat thi.\"\n"
                         + "\"kesi ho\" -> \"Aap kaisi hain?\"\n"
                         + "\"明天见\" -> \"Kal milte hain.\"\n"
-                        + "\nAfter the Roman Urdu message, add a new line containing exactly "
-                        + URDU_MARK + " and then the same message written in Urdu script (اردو), "
-                        + "with Urdu punctuation (۔ ، ؟).\n"
                         + OUTPUT_RULES;
             case SAME:
             default:
@@ -509,7 +514,8 @@ final class Rewriter {
                         + "stays English, Chinese stays Chinese, Urdu script stays Urdu script, "
                         + "and Roman Urdu stays Roman Urdu in English letters (never switch it to "
                         + "Urdu or Hindi script), with clear spellings (kaisi, nahi, khaane, aaj) "
-                        + "and respectful forms (aap, ji, not tum).\n\n"
+                        + "and respectful forms (aap, ji, not tum). A message that is mainly Urdu "
+                        + "with some English words is Urdu: the result must be fully Roman Urdu.\n\n"
                         + STYLE
                         + "Examples:\n"
                         + "\"your welcome dr.reza\" -> \"You're most welcome, Dr. Reza. It was my "
@@ -521,6 +527,10 @@ final class Rewriter {
                         + "\"ok i will check and tell you\" -> \"Sure, I'll check and get back to "
                         + "you shortly.\"\n"
                         + "\"kesi ho\" -> \"Aap kaisi hain?\"\n"
+                        + "\"walaikum salam sir maine file bheji hai check karke batao koi "
+                        + "improvement chahiye to\" -> \"Walaikum Assalam Sir, maine aap ko abhi ek "
+                        + "file bheji hai. Meharbani karke check kar ke bata dijiye ke kya is mein "
+                        + "mazeed behtari ki zaroorat hai.\"\n"
                         + "\"aye nii aj khany pe\" -> \"Aap aaj khaane par nahi aaye, sab khairiyat "
                         + "hai?\"\n"
                         + "\"明天来不了\" -> \"不好意思，我明天恐怕来不了。\"\n"
