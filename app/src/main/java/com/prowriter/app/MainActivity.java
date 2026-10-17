@@ -277,7 +277,7 @@ public class MainActivity extends Activity {
             String error = null;
             try {
                 raw = Rewriter.rewrite(p, key, text, target, speed, soFar -> runOnUiThread(() -> {
-                    String[] parts = Rewriter.split(soFar);
+                    String[] parts = Rewriter.split(soFar, target);
                     showResult(parts[0], parts[1], parts[2]);
                 }));
             } catch (Rewriter.RewriteException e) {
@@ -290,7 +290,7 @@ public class MainActivity extends Activity {
                 tryBtn.setEnabled(true);
                 tryProgress.setVisibility(View.GONE);
                 if (r != null) {
-                    String[] parts = Rewriter.split(r);
+                    String[] parts = Rewriter.split(r, target);
                     showResult(parts[0], parts[1], parts[2]);
                 } else {
                     lastResultMessage = "";
@@ -357,7 +357,7 @@ public class MainActivity extends Activity {
             try {
                 raw = Rewriter.rewriteVoice(key, audio, VoiceRecorder.MIME_TYPE, target, speed,
                         soFar -> runOnUiThread(() -> {
-                            String[] parts = Rewriter.split(soFar);
+                            String[] parts = Rewriter.split(soFar, target);
                             if (!parts[0].isEmpty()) showResult(parts[0], parts[1], parts[2]);
                         }));
             } catch (Rewriter.RewriteException e) {
@@ -371,7 +371,7 @@ public class MainActivity extends Activity {
                 micBtn.setEnabled(true);
                 tryProgress.setVisibility(View.GONE);
                 if (r != null) {
-                    String[] parts = Rewriter.split(r);
+                    String[] parts = Rewriter.split(r, target);
                     showResult(parts[0], parts[1], parts[2]);
                 } else {
                     showMessage("⚠ " + err);

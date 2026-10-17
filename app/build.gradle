@@ -10,8 +10,8 @@ android {
         applicationId "com.prowriter.app"
         minSdk 26
         targetSdk 34
-        versionCode 19
-        versionName "2.8"
+        versionCode 20
+        versionName "2.9"
     }
 
     // A fixed key so each new build installs over the previous one.

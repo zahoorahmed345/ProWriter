@@ -156,7 +156,7 @@ public class ProcessTextActivity extends Activity {
     /** Shows the answer while it is still being written. */
     private void showPartial(String soFar) {
         if (gone() || soFar.isEmpty()) return;
-        String[] parts = Rewriter.split(soFar);
+        String[] parts = Rewriter.split(soFar, target);
         if (parts[0].isEmpty()) return;
         status.setText(R.string.writing);
         result.setVisibility(View.VISIBLE);
@@ -166,7 +166,7 @@ public class ProcessTextActivity extends Activity {
 
     private void showResult(String raw) {
         if (gone()) return;
-        String[] parts = Rewriter.split(raw);
+        String[] parts = Rewriter.split(raw, target);
         progress.setVisibility(View.GONE);
         status.setVisibility(View.GONE);
         result.setVisibility(View.VISIBLE);
