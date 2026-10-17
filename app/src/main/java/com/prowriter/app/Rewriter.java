@@ -352,24 +352,33 @@ final class Rewriter {
 
     /** Separates the Chinese text (copied) from its pinyin (shown only). */
     static final String PINYIN_MARK = "===PINYIN===";
+    /** Separates Roman Urdu (copied) from the same message in Urdu script (tap to copy). */
+    static final String URDU_MARK = "===URDU===";
+
+    static final String KIND_PINYIN = "pinyin";
+    static final String KIND_URDU = "urdu";
 
     /**
-     * Splits an answer into {message, pinyin}. Pinyin is null when there is none.
-     * Works on partial answers too, hiding a half-written marker.
+     * Splits an answer into {message, extra line, kind}. The extra line is pinyin (shown only)
+     * or Urdu script (tap to copy), or null when there is none. Works on partial answers too,
+     * hiding a half-written marker.
      */
     static String[] split(String raw) {
-        if (raw == null) return new String[] {"", null};
-        int mark = raw.indexOf(PINYIN_MARK);
-        if (mark >= 0) {
-            String pinyin = raw.substring(mark + PINYIN_MARK.length()).trim();
-            return new String[] {raw.substring(0, mark).trim(), pinyin.isEmpty() ? null : pinyin};
+        if (raw == null) return new String[] {"", null, null};
+        String[][] marks = {{PINYIN_MARK, KIND_PINYIN}, {URDU_MARK, KIND_URDU}};
+        for (String[] m : marks) {
+            int at = raw.indexOf(m[0]);
+            if (at >= 0) {
+                String extra = raw.substring(at + m[0].length()).trim();
+                return new String[] {raw.substring(0, at).trim(), extra.isEmpty() ? null : extra,
+                        extra.isEmpty() ? null : m[1]};
+            }
         }
         int partialMark = raw.indexOf("===");
-        if (partialMark >= 0) return new String[] {raw.substring(0, partialMark).trim(), null};
-        return new String[] {raw.trim(), null};
+        if (partialMark >= 0) return new String[] {raw.substring(0, partialMark).trim(), null, null};
+        return new String[] {raw.trim(), null, null};
     }
 
-    /** Message plus pinyin underneath, for screens that just show text. */
     static String forDisplay(String raw) {
         String[] parts = split(raw);
         return parts[1] == null ? parts[0] : parts[0] + "\n\n" + parts[1];
@@ -489,6 +498,9 @@ final class Rewriter {
                         + "khushi ki baat thi.\"\n"
                         + "\"kesi ho\" -> \"Aap kaisi hain?\"\n"
                         + "\"明天见\" -> \"Kal milte hain.\"\n"
+                        + "\nAfter the Roman Urdu message, add a new line containing exactly "
+                        + URDU_MARK + " and then the same message written in Urdu script (اردو), "
+                        + "with Urdu punctuation (۔ ، ؟).\n"
                         + OUTPUT_RULES;
             case SAME:
             default:
@@ -569,8 +581,12 @@ final class Rewriter {
      * settings), so that when you tap, the slow connection setup is already done.
      */
     static void warmUp(Provider p) {
+        warmUp(p, false);
+    }
+
+    static void warmUp(Provider p, boolean force) {
         long now = System.currentTimeMillis();
-        if (now - lastWarmUp < 20_000) return;
+        if (!force && now - lastWarmUp < 20_000) return;
         lastWarmUp = now;
         final String url;
         switch (p) {

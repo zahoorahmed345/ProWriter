@@ -43,7 +43,7 @@
     <string name="mode_reply_desc">A professional reply to a message you received.</string>
     <string name="mode_english_desc">Your message, polished and translated into English.</string>
     <string name="mode_chinese_desc">Your message, polished and translated into Chinese, with pinyin to help you read it. Only the Chinese characters are copied.</string>
-    <string name="mode_urdu_desc">Your message, polished and translated into Roman Urdu (Urdu in English letters), from any language.</string>
+    <string name="mode_urdu_desc">Your message, polished in Roman Urdu (copied by default), with the Urdu script version below: tap it to copy the script instead.</string>
     <string name="apps_title">WhatsApp, Gmail and most apps</string>
     <string name="apps_1">Type your message. For a reply, long-press the message you received.</string>
     <string name="apps_2">Select the text.</string>
@@ -123,4 +123,6 @@
     <string name="retry">Try again</string>
     <string name="open_settings">Open settings</string>
     <string name="copied">Copied</string>
+    <string name="urdu_tap_copy">Tap to copy Urdu script</string>
+    <string name="urdu_copied">Urdu script copied</string>
 </resources>

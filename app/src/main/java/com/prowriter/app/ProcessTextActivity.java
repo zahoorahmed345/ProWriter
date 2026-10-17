@@ -161,12 +161,7 @@ public class ProcessTextActivity extends Activity {
         status.setText(R.string.writing);
         result.setVisibility(View.VISIBLE);
         result.setText(parts[0]);
-        showPinyin(parts[1]);
-    }
-
-    private void showPinyin(String text) {
-        pinyin.setVisibility(text == null ? View.GONE : View.VISIBLE);
-        pinyin.setText(text == null ? "" : text);
+        ExtraLine.show(pinyin, parts[1], parts[2]);
     }
 
     private void showResult(String raw) {
@@ -176,7 +171,7 @@ public class ProcessTextActivity extends Activity {
         status.setVisibility(View.GONE);
         result.setVisibility(View.VISIBLE);
         result.setText(parts[0]);
-        showPinyin(parts[1]);
+        ExtraLine.show(pinyin, parts[1], parts[2]);
         copyBtn.setVisibility(View.VISIBLE);
         // Some apps (e.g. a web page) only let you read text, so "Replace" is hidden there.
         // A reply goes in the chat box, not in place of the message you received.

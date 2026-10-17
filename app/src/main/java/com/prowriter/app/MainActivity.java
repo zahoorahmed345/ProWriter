@@ -270,7 +270,7 @@ public class MainActivity extends Activity {
 
         tryBtn.setEnabled(false);
         tryProgress.setVisibility(View.VISIBLE);
-        showResult("", null);
+        showResult("", null, null);
 
         new Thread(() -> {
             String raw = null;
@@ -278,7 +278,7 @@ public class MainActivity extends Activity {
             try {
                 raw = Rewriter.rewrite(p, key, text, target, speed, soFar -> runOnUiThread(() -> {
                     String[] parts = Rewriter.split(soFar);
-                    showResult(parts[0], parts[1]);
+                    showResult(parts[0], parts[1], parts[2]);
                 }));
             } catch (Rewriter.RewriteException e) {
                 error = e.getMessage();
@@ -291,7 +291,7 @@ public class MainActivity extends Activity {
                 tryProgress.setVisibility(View.GONE);
                 if (r != null) {
                     String[] parts = Rewriter.split(r);
-                    showResult(parts[0], parts[1]);
+                    showResult(parts[0], parts[1], parts[2]);
                 } else {
                     lastResultMessage = "";
                     resultBox.setVisibility(View.VISIBLE);
@@ -302,14 +302,13 @@ public class MainActivity extends Activity {
         }).start();
     }
 
-    private void showResult(String message, String pinyin) {
+    private void showResult(String message, String extra, String kind) {
         if (isFinishing() || isDestroyed()) return;
         lastResultMessage = message == null ? "" : message;
         resultBox.setVisibility(lastResultMessage.isEmpty() ? View.GONE : View.VISIBLE);
         findViewById(R.id.btn_copy_result).setVisibility(View.VISIBLE);
         tryResult.setText(lastResultMessage);
-        tryPinyin.setVisibility(pinyin == null ? View.GONE : View.VISIBLE);
-        tryPinyin.setText(pinyin == null ? "" : pinyin);
+        ExtraLine.show(tryPinyin, extra, kind);
     }
 
     // ------------------------------------------------------------------ voice (Home tab)
@@ -323,6 +322,8 @@ public class MainActivity extends Activity {
             modeChips.select(Rewriter.Target.SAME);
         }
         hideKeyboard();
+        // Connect to Gemini while you're speaking, so sending starts the moment you tap Stop.
+        Rewriter.warmUp(Rewriter.Provider.GEMINI, true);
         if (!recorder.start(() -> runOnUiThread(this::stopListening))) {
             showMessage(getString(R.string.mic_unavailable));
             return;
@@ -357,7 +358,7 @@ public class MainActivity extends Activity {
                 raw = Rewriter.rewriteVoice(key, audio, VoiceRecorder.MIME_TYPE, target, speed,
                         soFar -> runOnUiThread(() -> {
                             String[] parts = Rewriter.split(soFar);
-                            if (!parts[0].isEmpty()) showResult(parts[0], parts[1]);
+                            if (!parts[0].isEmpty()) showResult(parts[0], parts[1], parts[2]);
                         }));
             } catch (Rewriter.RewriteException e) {
                 error = e.getMessage();
@@ -371,7 +372,7 @@ public class MainActivity extends Activity {
                 tryProgress.setVisibility(View.GONE);
                 if (r != null) {
                     String[] parts = Rewriter.split(r);
-                    showResult(parts[0], parts[1]);
+                    showResult(parts[0], parts[1], parts[2]);
                 } else {
                     showMessage("⚠ " + err);
                 }

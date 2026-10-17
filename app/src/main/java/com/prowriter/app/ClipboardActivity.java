@@ -189,6 +189,8 @@ public class ClipboardActivity extends Activity {
             chips.select(target);
         }
 
+        // Connect to Gemini while you're speaking, so sending starts the moment you tap Stop.
+        Rewriter.warmUp(Rewriter.Provider.GEMINI, true);
         if (!recorder.start(() -> runOnUiThread(this::stopListening))) {
             showError(getString(R.string.mic_unavailable), false);
             return;
@@ -326,12 +328,7 @@ public class ClipboardActivity extends Activity {
         status.setText(R.string.writing);
         result.setVisibility(View.VISIBLE);
         result.setText(parts[0]);
-        showPinyin(parts[1]);
-    }
-
-    private void showPinyin(String text) {
-        pinyin.setVisibility(text == null ? View.GONE : View.VISIBLE);
-        pinyin.setText(text == null ? "" : text);
+        ExtraLine.show(pinyin, parts[1], parts[2]);
     }
 
     private void showResult(String raw) {
@@ -342,7 +339,7 @@ public class ClipboardActivity extends Activity {
         status.setText(R.string.clip_copied);
         result.setVisibility(View.VISIBLE);
         result.setText(parts[0]);
-        showPinyin(parts[1]);
+        ExtraLine.show(pinyin, parts[1], parts[2]);
         copyBtn.setText(R.string.copy_edited);
         copyBtn.setVisibility(View.VISIBLE);
         retryBtn.setVisibility(View.GONE);
