@@ -50,6 +50,14 @@ public class MainActivity extends Activity {
     private ModeChips modeChips;
     private String lastResultMessage = "";
 
+    // The last message you generated from (typed text or a recording). Tapping a mode button
+    // re-does this message in that mode, like the pop-ups.
+    private String srcText;
+    private byte[] srcAudio;
+    private final java.util.Map<String, String> homeResults = new java.util.HashMap<>();
+    private Rewriter.Target homeLastTranslation;
+    private int homeRequest;
+
     private Button micBtn;
     private VoiceRecorder recorder;
     private final Handler ticker = new Handler(Looper.getMainLooper());
@@ -159,8 +167,10 @@ public class MainActivity extends Activity {
         tryPinyin = findViewById(R.id.try_pinyin);
         tryProgress = findViewById(R.id.try_progress);
         tryBtn = findViewById(R.id.btn_try);
-        modeChips = new ModeChips(findViewById(R.id.mode_chips), Prefs.getLastTarget(this),
-                t -> Prefs.setLastTarget(this, t));
+        modeChips = new ModeChips(findViewById(R.id.mode_chips), Prefs.getLastTarget(this), t -> {
+            Prefs.setLastTarget(this, t);
+            if ((srcText != null || srcAudio != null) && !recorder.isRecording()) runHome();
+        });
         tryBtn.setOnClickListener(v -> tryIt());
 
         recorder = new VoiceRecorder(this);
@@ -262,24 +272,64 @@ public class MainActivity extends Activity {
             return;
         }
         hideKeyboard();
+        srcText = text;
+        srcAudio = null;
+        homeResults.clear();
+        homeLastTranslation = null;
+        modeChips.setEnabled(Rewriter.Target.REPLY, true);
+        runHome();
+    }
+
+    /** Runs the current mode on your last message (Pro after a translation polishes it). */
+    private void runHome() {
+        final int id = ++homeRequest;
+        final Rewriter.Target target = modeChips.get();
+
+        final String cacheKey;
+        final String text;
+        final byte[] voice;
+        String translated = target == Rewriter.Target.SAME && homeLastTranslation != null
+                ? homeResults.get(homeLastTranslation.name()) : null;
+        if (translated != null) {
+            cacheKey = "SAME>" + homeLastTranslation.name();
+            text = Rewriter.split(translated)[0];
+            voice = null;
+        } else {
+            cacheKey = target.name();
+            text = srcText;
+            voice = srcAudio;
+        }
+        if (Rewriter.isTranslation(target)) homeLastTranslation = target;
+
+        String cached = homeResults.get(cacheKey);
+        if (cached != null) {
+            String[] parts = Rewriter.split(cached, target);
+            showResult(parts[0], parts[1], parts[2]);
+            return;
+        }
 
         final Rewriter.Provider p = provider;
-        final String key = Prefs.getApiKey(this, p);
-        final Rewriter.Target target = modeChips.get();
+        final String key = voice != null ? Prefs.getApiKey(this, Rewriter.Provider.GEMINI)
+                : Prefs.getApiKey(this, p);
         final Rewriter.Speed speed = Prefs.getSpeed(this);
 
         tryBtn.setEnabled(false);
+        micBtn.setEnabled(false);
         tryProgress.setVisibility(View.VISIBLE);
-        showResult("", null, null);
+        showMessage(getString(voice != null ? R.string.mic_working : R.string.working));
 
         new Thread(() -> {
             String raw = null;
             String error = null;
             try {
-                raw = Rewriter.rewrite(p, key, text, target, speed, soFar -> runOnUiThread(() -> {
+                Rewriter.Partial partial = soFar -> runOnUiThread(() -> {
+                    if (id != homeRequest) return;
                     String[] parts = Rewriter.split(soFar, target);
-                    showResult(parts[0], parts[1], parts[2]);
-                }));
+                    if (!parts[0].isEmpty()) showResult(parts[0], parts[1], parts[2]);
+                });
+                raw = voice != null
+                        ? Rewriter.rewriteVoice(key, voice, VoiceRecorder.MIME_TYPE, target, speed, partial)
+                        : Rewriter.rewrite(p, key, text, target, speed, partial);
             } catch (Rewriter.RewriteException e) {
                 error = e.getMessage();
             }
@@ -287,16 +337,16 @@ public class MainActivity extends Activity {
             final String err = error;
             runOnUiThread(() -> {
                 if (isFinishing() || isDestroyed()) return;
+                if (r != null) homeResults.put(cacheKey, r);
+                if (id != homeRequest) return;
                 tryBtn.setEnabled(true);
+                micBtn.setEnabled(true);
                 tryProgress.setVisibility(View.GONE);
                 if (r != null) {
                     String[] parts = Rewriter.split(r, target);
                     showResult(parts[0], parts[1], parts[2]);
                 } else {
-                    lastResultMessage = "";
-                    resultBox.setVisibility(View.VISIBLE);
-                    tryResult.setText("⚠ " + err);
-                    tryPinyin.setVisibility(View.GONE);
+                    showMessage("⚠ " + err);
                 }
             });
         }).start();
@@ -343,41 +393,12 @@ public class MainActivity extends Activity {
             showMessage(getString(R.string.mic_too_short));
             return;
         }
-        final String key = Prefs.getApiKey(this, Rewriter.Provider.GEMINI);
-        final Rewriter.Target target = modeChips.get();
-        final Rewriter.Speed speed = Prefs.getSpeed(this);
-        tryBtn.setEnabled(false);
-        micBtn.setEnabled(false);
-        tryProgress.setVisibility(View.VISIBLE);
-        showMessage(getString(R.string.mic_working));
-
-        new Thread(() -> {
-            String raw = null;
-            String error = null;
-            try {
-                raw = Rewriter.rewriteVoice(key, audio, VoiceRecorder.MIME_TYPE, target, speed,
-                        soFar -> runOnUiThread(() -> {
-                            String[] parts = Rewriter.split(soFar, target);
-                            if (!parts[0].isEmpty()) showResult(parts[0], parts[1], parts[2]);
-                        }));
-            } catch (Rewriter.RewriteException e) {
-                error = e.getMessage();
-            }
-            final String r = raw;
-            final String err = error;
-            runOnUiThread(() -> {
-                if (isFinishing() || isDestroyed()) return;
-                tryBtn.setEnabled(true);
-                micBtn.setEnabled(true);
-                tryProgress.setVisibility(View.GONE);
-                if (r != null) {
-                    String[] parts = Rewriter.split(r, target);
-                    showResult(parts[0], parts[1], parts[2]);
-                } else {
-                    showMessage("⚠ " + err);
-                }
-            });
-        }).start();
+        srcAudio = audio;
+        srcText = null;
+        homeResults.clear();
+        homeLastTranslation = null;
+        modeChips.setEnabled(Rewriter.Target.REPLY, false);
+        runHome();
     }
 
     /** Shows a status or error line in the result box (nothing to copy). */

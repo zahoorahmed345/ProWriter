@@ -123,6 +123,6 @@
     <string name="retry">Try again</string>
     <string name="open_settings">Open settings</string>
     <string name="copied">Copied</string>
-    <string name="urdu_tap_copy">Tap to copy Urdu script</string>
+    <string name="urdu_tap_copy">(tap to copy)</string>
     <string name="urdu_copied">Urdu script copied</string>
 </resources>

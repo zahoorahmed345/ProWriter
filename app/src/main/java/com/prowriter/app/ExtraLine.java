@@ -28,14 +28,14 @@ final class ExtraLine {
         }
         view.setVisibility(View.VISIBLE);
         if (Rewriter.KIND_URDU.equals(kind)) {
+            // Looks like the pinyin line; tapping it copies the Urdu script.
             Context c = view.getContext();
             SpannableStringBuilder sb = new SpannableStringBuilder(text);
-            sb.setSpan(new RelativeSizeSpan(1.2f), 0, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             int start = sb.length();
             sb.append("\n").append(c.getString(R.string.urdu_tap_copy));
             sb.setSpan(new RelativeSizeSpan(0.8f), start, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             view.setTextIsSelectable(false);
-            view.setAlpha(1f);
+            view.setAlpha(0.65f);
             view.setText(sb);
             view.setOnClickListener(v -> {
                 ClipboardManager cm = (ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
