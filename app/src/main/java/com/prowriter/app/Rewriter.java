@@ -379,6 +379,22 @@ final class Rewriter {
         return new String[] {raw.trim(), null, null};
     }
 
+    /**
+     * Like split(raw), but drops an extra line that doesn't belong to this mode: the Urdu script
+     * only shows for Urdu and Pro, pinyin never shows for ENG or Urdu.
+     */
+    static String[] split(String raw, Target t) {
+        String[] parts = split(raw);
+        boolean allowed = parts[2] == null
+                || (KIND_URDU.equals(parts[2]) && (t == Target.URDU || t == Target.SAME))
+                || (KIND_PINYIN.equals(parts[2]) && t != Target.ENGLISH && t != Target.URDU);
+        if (!allowed) {
+            parts[1] = null;
+            parts[2] = null;
+        }
+        return parts;
+    }
+
     static String forDisplay(String raw) {
         String[] parts = split(raw);
         return parts[1] == null ? parts[0] : parts[0] + "\n\n" + parts[1];
