@@ -90,6 +90,35 @@ final class Rewriter {
         }
     }
 
+    private static final java.util.Set<String> URDU_WORDS = new java.util.HashSet<>(
+            java.util.Arrays.asList("hai", "hain", "aap", "nahi", "nahin", "mein", "ke", "ki",
+                    "ka", "ko", "kar", "karke", "kya", "yeh", "woh", "bhi", "raha", "rahi", "rahe",
+                    "tha", "thi", "dijiye", "meharbani", "shukriya", "sakta", "sakti", "gaya",
+                    "gayi", "hoon", "hun", "aaj", "abhi", "liye", "wala", "wali"));
+
+    /** True when a translation (ENG or 中文) came back in the wrong language. */
+    static boolean wrongLanguage(Target t, String text) {
+        boolean cjk = false;
+        boolean arabicScript = false;
+        for (int i = 0; i < text.length(); i++) {
+            Character.UnicodeBlock b = Character.UnicodeBlock.of(text.charAt(i));
+            if (b == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS) cjk = true;
+            if (b == Character.UnicodeBlock.ARABIC) arabicScript = true;
+        }
+        if (t == Target.CHINESE) return !cjk;
+        if (t != Target.ENGLISH) return false;
+        if (cjk || arabicScript) return true;
+        String[] words = text.toLowerCase(java.util.Locale.ROOT).split("[^a-z]+");
+        int urdu = 0;
+        int total = 0;
+        for (String w : words) {
+            if (w.isEmpty()) continue;
+            total++;
+            if (URDU_WORDS.contains(w)) urdu++;
+        }
+        return urdu >= 3 && urdu * 4 >= total;
+    }
+
     /** ENG, 中文 and Urdu translate; after one of them, Pro polishes that translation. */
     static boolean isTranslation(Target t) {
         return t == Target.ENGLISH || t == Target.CHINESE || t == Target.URDU;
@@ -187,9 +216,11 @@ final class Rewriter {
                 + "say; it may be Urdu, English, Chinese or a mix. Ignore filler words, pauses, "
                 + "repetitions and background noise. Then treat what they said as the <message>.";
         if (target == Target.ENGLISH) {
-            instruction += "\n\nWrite the result in English.";
+            instruction += "\n\nTRANSLATE what they said into English. Write the whole result "
+                    + "in English only, even if they spoke Urdu: no Urdu words or sentences.";
         } else if (target == Target.CHINESE) {
-            instruction += "\n\nWrite the result in Simplified Chinese (简体中文).";
+            instruction += "\n\nTRANSLATE what they said into Simplified Chinese (简体中文). Write "
+                    + "the whole result in Chinese characters only, even if they spoke Urdu.";
         } else if (target == Target.URDU) {
             instruction += "\n\nWrite the result in Roman Urdu (Urdu in English letters).";
         } else {
@@ -207,9 +238,15 @@ final class Rewriter {
             String result = callGeminiWithFallback(speed, geminiKey.trim(), systemPrompt(target),
                     parts, partial);
             result = result == null ? "" : result.trim();
-            if (split(result)[0].isEmpty()) {
+            String main = split(result)[0];
+            if (main.isEmpty()) {
                 throw new RewriteException("I couldn't hear a message. Please try again and speak "
                         + "a little closer to the phone.");
+            }
+            if (wrongLanguage(target, main)) {
+                // The AI kept the spoken language instead of translating. Translate the text it
+                // wrote instead, which is very reliable.
+                result = rewrite(Provider.GEMINI, geminiKey, main, target, speed, partial);
             }
             return result;
         } catch (RewriteException e) {
@@ -409,7 +446,8 @@ final class Rewriter {
             + "What \"professional\" means here: the way a courteous, confident professional "
             + "texts a colleague, client or customer. Correct, clear and warm. Polite without "
             + "being stiff, flowery or servile. Specifically:\n"
-            + "- Keep the whole result in ONE language. Never switch language halfway: if the "
+            + "- Keep the whole result in ONE language: the output language your job asks for. "
+            + "Never switch language halfway: if the "
             + "result is Roman Urdu, every sentence is Roman Urdu. Everyday English words that "
             + "Urdu speakers normally use (file, check, meeting, order, office, sir) may stay as "
             + "words inside the Urdu sentence, but never write English sentences or phrases like "

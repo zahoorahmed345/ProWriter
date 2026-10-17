@@ -82,8 +82,8 @@ public class ClipboardActivity extends Activity {
         findViewById(R.id.btn_replace).setVisibility(View.GONE);
         recorder = new VoiceRecorder(this);
 
-        // Opens in the mode you used last time.
-        target = Prefs.getLastTarget(this);
+        // The tiles always open on Pro.
+        target = Rewriter.Target.SAME;
         chips = new ModeChips(findViewById(R.id.mode_chips), target, t -> {
             target = t;
             Prefs.setLastTarget(this, t);
