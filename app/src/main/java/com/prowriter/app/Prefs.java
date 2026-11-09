@@ -102,6 +102,15 @@ final class Prefs {
         return Integer.toHexString(t.hashCode()) + "-" + t.length();
     }
 
+    /** Voice needs Gemini or Qwen: the selected one if it can listen, else whichever has a key. */
+    static Rewriter.Provider voiceProvider(Context c) {
+        Rewriter.Provider p = getProvider(c);
+        if (p == Rewriter.Provider.GEMINI || p == Rewriter.Provider.QWEN) return p;
+        if (!getApiKey(c, Rewriter.Provider.GEMINI).isEmpty()) return Rewriter.Provider.GEMINI;
+        if (!getApiKey(c, Rewriter.Provider.QWEN).isEmpty()) return Rewriter.Provider.QWEN;
+        return Rewriter.Provider.GEMINI;
+    }
+
     static boolean forceEnglish(Context c) {
         return sp(c).getBoolean(KEY_ENGLISH, false);
     }

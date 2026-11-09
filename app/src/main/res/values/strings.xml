@@ -56,7 +56,7 @@
     <string name="wechat_4">Long-press the message box, tap Paste and send.</string>
     <string name="wechat_note">No tile yet? Tap the button below. You can also long-press the ProChat app icon and choose \"Polish copied text\".</string>
     <string name="privacy_title">Privacy</string>
-    <string name="privacy_body">ProChat needs no special permissions. It only sees text you select or copy, at the moment you use it, and sends it only to the AI provider you chose in Settings. The microphone is used only while you\'re speaking a voice message, and the recording is deleted right after it\'s sent to Google Gemini. Your API key is stored only on this phone.</string>
+    <string name="privacy_body">ProChat needs no special permissions. It only sees text you select or copy, at the moment you use it, and sends it only to the AI provider you chose in Settings. The microphone is used only while you\'re speaking a voice message, and the recording is deleted right after it\'s sent to the AI provider you chose. Your API key is stored only on this phone.</string>
 
     <!-- Settings -->
     <string name="provider_label">AI provider</string>
@@ -67,7 +67,7 @@
     <string name="key_saved">Key saved</string>
     <string name="key_cleared">Key removed</string>
     <string name="speed_title">Speed</string>
-    <string name="speed_sub">For Google Gemini. Faster settings answer sooner; Best writes the finest messages.</string>
+    <string name="speed_sub">For Google Gemini and Alibaba Qwen. Faster settings answer sooner; Best writes the finest messages.</string>
     <string name="speed_fast">Fast: quickest answers</string>
     <string name="speed_balanced">Balanced: quick and high quality (recommended)</string>
     <string name="speed_best">Best: finest writing, a little slower</string>
@@ -108,7 +108,7 @@
     <string name="shortcut_voice_short">Speak a message</string>
     <string name="shortcut_voice_long">Speak a message to ProChat</string>
     <string name="voice_title">Voice</string>
-    <string name="voice_body">Speak instead of typing, in Urdu, English, Chinese or a mix. ProChat listens and writes it in the mode you choose (Pro, ENG, 中文 or Urdu), then copies it for you. Spoken Urdu is written in Roman Urdu. Voice uses Google Gemini.</string>
+    <string name="voice_body">Speak instead of typing, in Urdu, English, Chinese or a mix. ProChat listens and writes it in the mode you choose (Pro, ENG, 中文 or Urdu), then copies it for you. Spoken Urdu is written in Roman Urdu. Voice uses Google Gemini or Alibaba Qwen.</string>
     <string name="voice_1">Swipe down and tap the ProChat Voice tile (or tap 🎤 Speak in any ProChat pop-up).</string>
     <string name="voice_2">Speak your message, then tap Stop.</string>
     <string name="voice_3">The result is copied. Long-press the message box, tap Paste and send.</string>

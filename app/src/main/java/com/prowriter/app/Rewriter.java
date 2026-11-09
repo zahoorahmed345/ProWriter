@@ -27,6 +27,9 @@ final class Rewriter {
         GEMINI("Google Gemini (free)", "Gemini API key", "AIza…",
                 "https://aistudio.google.com/apikey", "Get a free key at aistudio.google.com",
                 "gemini-3.6-flash"),
+        QWEN("Alibaba Qwen (no VPN needed)", "Alibaba Cloud API key", "sk-…",
+                "https://bailian.console.aliyun.com/", "Get a key at bailian.console.aliyun.com",
+                "qwen-plus"),
         CLAUDE("Claude (paid)", "Claude API key", "sk-ant-…",
                 "https://console.anthropic.com/settings/keys", "Get a key at console.anthropic.com",
                 "claude-haiku-5-5"),
@@ -55,6 +58,8 @@ final class Rewriter {
     static final class RewriteException extends Exception {
         final boolean missingKey;
         boolean canFallBack;
+        boolean authFailed;     // key rejected (for Qwen: maybe the other region)
+        boolean modelProblem;   // model name or option not accepted
 
         RewriteException(String message) {
             this(message, false);
@@ -156,6 +161,9 @@ final class Rewriter {
                 case GEMINI:
                     result = callGeminiWithFallback(speed, key, system, textParts(userText), partial);
                     break;
+                case QWEN:
+                    result = callQwenText(speed, key, system, userText, partial);
+                    break;
                 case DEEPSEEK:
                     result = callDeepSeek(provider, key, system, userText);
                     break;
@@ -198,14 +206,14 @@ final class Rewriter {
     }
 
     /**
-     * Voice: sends the recording to Gemini, which listens and writes the result in the chosen
-     * mode in one step. Always uses Google Gemini (Claude and DeepSeek can't listen to audio).
+     * Voice: sends the recording to Gemini or Qwen, which listens and writes the result in the
+     * chosen mode in one step (Claude and DeepSeek can't listen to audio).
      */
-    static String rewriteVoice(String geminiKey, byte[] audio, String mimeType, Target target,
-                               Speed speed, Partial partial) throws RewriteException {
-        if (geminiKey == null || geminiKey.trim().isEmpty()) {
-            throw new RewriteException("Voice uses Google Gemini. Open ProChat → Settings, choose "
-                    + "Google Gemini, paste its key and tap Save.", true);
+    static String rewriteVoice(Provider vp, String key, byte[] audio, String mimeType,
+                               Target target, Speed speed, Partial partial) throws RewriteException {
+        if (key == null || key.trim().isEmpty()) {
+            throw new RewriteException("Voice uses Google Gemini or Alibaba Qwen. Open ProChat → "
+                    + "Settings, choose one of them, paste its key and tap Save.", true);
         }
         if (target == Target.REPLY) {
             throw new RewriteException("Reply works with copied messages. For voice, choose Pro, ENG, "
@@ -229,14 +237,19 @@ final class Rewriter {
                     + "must be Roman Urdu in English letters: no English sentences.";
         }
         try {
-            JSONArray parts = new JSONArray()
-                    .put(new JSONObject().put("inlineData", new JSONObject()
-                            .put("mimeType", mimeType)
-                            .put("data", android.util.Base64.encodeToString(audio,
-                                    android.util.Base64.NO_WRAP))))
-                    .put(new JSONObject().put("text", instruction));
-            String result = callGeminiWithFallback(speed, geminiKey.trim(), systemPrompt(target),
-                    parts, partial);
+            String b64 = android.util.Base64.encodeToString(audio, android.util.Base64.NO_WRAP);
+            String result;
+            if (vp == Provider.QWEN) {
+                result = callQwenVoice(key.trim(), b64, instruction, systemPrompt(target), partial);
+            } else {
+                JSONArray parts = new JSONArray()
+                        .put(new JSONObject().put("inlineData", new JSONObject()
+                                .put("mimeType", mimeType)
+                                .put("data", b64)))
+                        .put(new JSONObject().put("text", instruction));
+                result = callGeminiWithFallback(speed, key.trim(), systemPrompt(target),
+                        parts, partial);
+            }
             result = result == null ? "" : result.trim();
             String main = split(result)[0];
             if (main.isEmpty()) {
@@ -246,7 +259,7 @@ final class Rewriter {
             if (wrongLanguage(target, main)) {
                 // The AI kept the spoken language instead of translating. Translate the text it
                 // wrote instead, which is very reliable.
-                result = rewrite(Provider.GEMINI, geminiKey, main, target, speed, partial);
+                result = rewrite(vp, key, main, target, speed, partial);
             }
             return result;
         } catch (RewriteException e) {
@@ -363,6 +376,132 @@ final class Rewriter {
             if ("text".equals(block.optString("type"))) out.append(block.optString("text"));
         }
         return out.toString();
+    }
+
+    // ---------------------------------------------------------------- Alibaba Qwen
+
+    /** China (Beijing) first, then International (Singapore): keys only work in their region. */
+    private static final String[] QWEN_HOSTS = {
+            "https://dashscope.aliyuncs.com", "https://dashscope-intl.aliyuncs.com"};
+    /** The region the key last worked in. */
+    private static volatile int qwenHost = 0;
+
+    static final String QWEN_SAFE_MODEL = "qwen-plus";
+    static final String QWEN_VOICE_MODEL = "qwen3.8-omni-flash";
+
+    private static String qwenModel(Speed speed) {
+        if (speed == Speed.FAST) return "qwen-flash";
+        if (speed == Speed.BEST) return "qwen-max";
+        return "qwen-plus";
+    }
+
+    private static String callQwenText(Speed speed, String key, String system, String userText,
+                                       Partial partial) throws Exception {
+        String model = qwenModel(speed);
+        try {
+            return callQwen(key, qwenTextBody(model, true, system, userText), partial);
+        } catch (RewriteException e) {
+            if (!e.modelProblem) throw e;
+            // Model name or "no thinking" option not accepted: use the standard model plainly.
+            return callQwen(key, qwenTextBody(QWEN_SAFE_MODEL, false, system, userText), partial);
+        }
+    }
+
+    private static JSONObject qwenTextBody(String model, boolean noThinking, String system,
+                                           String userText) throws Exception {
+        JSONObject body = new JSONObject();
+        body.put("model", model);
+        body.put("max_tokens", 1024);
+        body.put("stream", true);
+        if (noThinking) body.put("enable_thinking", false); // answer straight away
+        body.put("messages", new JSONArray()
+                .put(new JSONObject().put("role", "system").put("content", system))
+                .put(new JSONObject().put("role", "user").put("content", userText)));
+        return body;
+    }
+
+    private static String callQwenVoice(String key, String audioBase64, String instruction,
+                                        String system, Partial partial) throws Exception {
+        JSONArray content = new JSONArray()
+                .put(new JSONObject().put("type", "input_audio").put("input_audio",
+                        new JSONObject().put("data", "data:;base64," + audioBase64)
+                                .put("format", "aac")))
+                .put(new JSONObject().put("type", "text").put("text", instruction));
+        JSONObject body = new JSONObject();
+        body.put("model", QWEN_VOICE_MODEL);
+        body.put("stream", true);
+        body.put("modalities", new JSONArray().put("text"));
+        body.put("messages", new JSONArray()
+                .put(new JSONObject().put("role", "system").put("content", system))
+                .put(new JSONObject().put("role", "user").put("content", content)));
+        return callQwen(key, body, partial);
+    }
+
+    /** Sends to the region that worked last; if the key is rejected, tries the other region. */
+    private static String callQwen(String key, JSONObject body, Partial partial) throws Exception {
+        RewriteException last = null;
+        for (int attempt = 0; attempt < QWEN_HOSTS.length; attempt++) {
+            int h = (qwenHost + attempt) % QWEN_HOSTS.length;
+            try {
+                String text = streamOpenAiStyle(Provider.QWEN,
+                        QWEN_HOSTS[h] + "/compatible-mode/v1/chat/completions", key, body, partial);
+                qwenHost = h;
+                return text;
+            } catch (RewriteException e) {
+                if (!e.authFailed) throw e;
+                last = e;
+            }
+        }
+        throw last;
+    }
+
+    /** OpenAI-style streaming chat ("data: {...}" lines with choices[0].delta.content). */
+    private static String streamOpenAiStyle(Provider p, String url, String key, JSONObject body,
+                                            Partial partial) throws Exception {
+        Map<String, String> headers = new TreeMap<>();
+        headers.put("Authorization", "Bearer " + key);
+        HttpURLConnection conn = open(url, headers, body);
+        try {
+            int code = conn.getResponseCode();
+            if (code < 200 || code >= 300) {
+                Response err = new Response(code, readAll(conn.getErrorStream()));
+                RewriteException ex = new RewriteException(describeError(p, err));
+                String lower = err.body.toLowerCase(java.util.Locale.ROOT);
+                ex.authFailed = code == 401 || lower.contains("invalid_api_key");
+                ex.modelProblem = (code == 400 || code == 404)
+                        && (lower.contains("model") || lower.contains("enable_thinking"))
+                        && !ex.authFailed && !lower.contains("arrearage");
+                throw ex;
+            }
+            StringBuilder out = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (!line.startsWith("data:")) continue;
+                    String data = line.substring(5).trim();
+                    if (data.isEmpty() || data.equals("[DONE]")) continue;
+                    JSONObject chunk = new JSONObject(data);
+                    if (chunk.has("error")) {
+                        throw new RewriteException(describeError(p, new Response(500, data)));
+                    }
+                    JSONArray choices = chunk.optJSONArray("choices");
+                    if (choices == null || choices.length() == 0) continue;
+                    JSONObject delta = choices.getJSONObject(0).optJSONObject("delta");
+                    if (delta == null) continue;
+                    Object c = delta.opt("content");
+                    String t = c instanceof String ? (String) c : "";
+                    if (!t.isEmpty()) {
+                        out.append(t);
+                        if (partial != null) partial.onText(out.toString().trim());
+                    }
+                }
+            }
+            return out.toString();
+        } catch (Exception e) {
+            conn.disconnect();
+            throw e;
+        }
     }
 
     // ---------------------------------------------------------------- DeepSeek
@@ -695,6 +834,9 @@ final class Rewriter {
             case DEEPSEEK:
                 url = "https://api.deepseek.com/";
                 break;
+            case QWEN:
+                url = QWEN_HOSTS[qwenHost] + "/";
+                break;
             default:
                 url = "https://api.anthropic.com/";
                 break;
@@ -730,7 +872,8 @@ final class Rewriter {
             return p.label + " is not available in your region. Try another provider in the "
                     + "ProChat app.";
         }
-        if (r.code == 402 || lower.contains("insufficient balance") || lower.contains("credit balance")) {
+        if (r.code == 402 || lower.contains("insufficient balance") || lower.contains("credit balance")
+                || lower.contains("arrearage") || lower.contains("overdue")) {
             return "Your " + p.label + " account has no credit left. Add credit on the provider's "
                     + "website, or switch to Google Gemini (free) in the app.";
         }

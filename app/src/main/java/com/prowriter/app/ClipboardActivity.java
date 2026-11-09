@@ -190,7 +190,7 @@ public class ClipboardActivity extends Activity {
         }
 
         // Connect to Gemini while you're speaking, so sending starts the moment you tap Stop.
-        Rewriter.warmUp(Rewriter.Provider.GEMINI, true);
+        Rewriter.warmUp(Prefs.voiceProvider(this), true);
         if (!recorder.start(() -> runOnUiThread(this::stopListening))) {
             showError(getString(R.string.mic_unavailable), false);
             return;
@@ -280,8 +280,9 @@ public class ClipboardActivity extends Activity {
         showLoading();
         final Rewriter.Speed speed = Prefs.getSpeed(this);
         final Rewriter.Provider provider = Prefs.getProvider(this);
+        final Rewriter.Provider voiceProvider = Prefs.voiceProvider(this);
         final String key = voice != null
-                ? Prefs.getApiKey(this, Rewriter.Provider.GEMINI)
+                ? Prefs.getApiKey(this, voiceProvider)
                 : Prefs.getApiKey(this, provider);
 
         if (text != null && translated == null) Prefs.markClipUsed(this, text);
@@ -292,7 +293,7 @@ public class ClipboardActivity extends Activity {
                     if (id == requestId) showPartial(soFar);
                 });
                 String rewritten = voice != null
-                        ? Rewriter.rewriteVoice(key, voice, VoiceRecorder.MIME_TYPE, t, speed, partial)
+                        ? Rewriter.rewriteVoice(voiceProvider, key, voice, VoiceRecorder.MIME_TYPE, t, speed, partial)
                         : Rewriter.rewrite(provider, key, text, t, speed, partial);
                 runOnUiThread(() -> {
                     results.put(cacheKey, rewritten);

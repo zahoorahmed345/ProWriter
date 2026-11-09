@@ -309,7 +309,8 @@ public class MainActivity extends Activity {
         }
 
         final Rewriter.Provider p = provider;
-        final String key = voice != null ? Prefs.getApiKey(this, Rewriter.Provider.GEMINI)
+        final Rewriter.Provider voiceProvider = Prefs.voiceProvider(this);
+        final String key = voice != null ? Prefs.getApiKey(this, voiceProvider)
                 : Prefs.getApiKey(this, p);
         final Rewriter.Speed speed = Prefs.getSpeed(this);
 
@@ -328,7 +329,7 @@ public class MainActivity extends Activity {
                     if (!parts[0].isEmpty()) showResult(parts[0], parts[1], parts[2]);
                 });
                 raw = voice != null
-                        ? Rewriter.rewriteVoice(key, voice, VoiceRecorder.MIME_TYPE, target, speed, partial)
+                        ? Rewriter.rewriteVoice(voiceProvider, key, voice, VoiceRecorder.MIME_TYPE, target, speed, partial)
                         : Rewriter.rewrite(p, key, text, target, speed, partial);
             } catch (Rewriter.RewriteException e) {
                 error = e.getMessage();
@@ -373,7 +374,7 @@ public class MainActivity extends Activity {
         }
         hideKeyboard();
         // Connect to Gemini while you're speaking, so sending starts the moment you tap Stop.
-        Rewriter.warmUp(Rewriter.Provider.GEMINI, true);
+        Rewriter.warmUp(Prefs.voiceProvider(this), true);
         if (!recorder.start(() -> runOnUiThread(this::stopListening))) {
             showMessage(getString(R.string.mic_unavailable));
             return;
